@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>My experiment</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="jsPsych/jspsych.js"></script>
+        <script src="jsPsych/plugins/jspsych-instructions.js"></script>
+        <script src="jsPsych/plugins/jspsych-xab-image.js"></script>
+        <script src="jsPsych/plugins/jspsych-image-slider-response.js"></script>
+        <script src="jsPsych/plugins/jspsych-image-keyboard-response.js"></script>
+        <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
+        <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+        <style>
+    		img {
+      			width: 400px;
+   		 		}
+  		</style>
+    </head>
+    <body>
+    </body>
+    <script>
+    	/* param */
+    	var feel_trialNum = 40;
+
+    	/* helper trials and functions */
+    	var fixate = {
+    		type: "image-keyboard-response",
+    		stimulus: "img/cross.jpg",
+    		choices: [],
+    		trial_duration: 1000
+    	}
+
+    	var slideW = {
+    		type: "image-slider-response",
+    		stimulus: "img/stimW.jpg",
+    		labels: ["Extremely Unhappy", "Extremely Happy"],
+   			data: {value: value}
+   		}
+
+   		var slideL = {
+    		type: "image-slider-response",
+    		stimulus: "img/stimL.jpg",
+    		labels: ["Extremely Unhappy", "Extremely Happy"],
+   			data: {value: value}
+   		}
+
+    	var slideDW = {
+    		type: "image-slider-response",
+    		stimulus: "img/stimDW.jpg",
+    		labels: ["Extremely Unhappy", "Extremely Happy"],
+   			data: {value: value}
+   		}
+
+		var slideDL = {
+    		type: "image-slider-response",
+   			stimulus: "img/stimDL.jpg",
+   			labels: ["Extremely Unhappy", "Extremely Happy"],
+   			data: {value: value}
+	   	}
+
+	   	var slideN = {
+    		type: "image-slider-response",
+   			stimulus: "img/stimN.jpg",
+   			labels: ["Extremely Unhappy", "Extremely Happy"],
+   			data: {value: value}
+	   	}
+
+    	function createInfo(value){
+    		if (value > 0){
+    			var info = {
+    				type: "html-keyboard-response",
+    				stimulus: "<h2>If you choose the <span style=\"color:green\">GOOD</span> picture, you will win $" + String(value) + "</h2>",
+    				choices: jsPsych.NO_KEYS,
+    				trial_duration: 2000
+    			}
+    			return info;
+    		} else{
+    			var info = {
+    				type: "html-keyboard-response",
+    				stimulus: "<h2>If you choose the <span style=\"color:red\">BAD</span> picture, you will lose $" + String(-value) + "</h2>",
+    				choices: jsPsych.NO_KEYS,
+    				trial_duration: 2000
+    			}
+    			return info;
+    		}
+    	}
+
+    	function getFeedback(value){
+    		zero = Math.round(Math.random());
+    		if (zero == 0){
+    			var feedback = {
+    				type: "html-keyboard-response",
+    				stimulus: "<h2>+$0</h2>",
+    				choices: jsPsych.NO_KEYS,
+    				trial_duration: 2000
+    			} 
+    			return feedback;
+    		} else if(value > 0){
+    			var feedback = {
+    				type: "html-keyboard-response",
+    				stimulus: "<h2><span style=\"color:green\">+$" + String(value) + "</span></h2>",
+    				choices: jsPsych.NO_KEYS,
+    				trial_duration: 2000
+    			} 
+    			return feedback;
+    		} else{
+    			var feedback = {
+    				type: "html-keyboard-response",
+    				stimulus: "<h2><span style=\"color:red\">-$" + String(-value) + "</span></h2>",
+    				choices: jsPsych.NO_KEYS,
+    				trial_duration: 2000
+    			}
+    			return feedback;
+    		}
+    	}
+
+    	function createFeelExpectSlide(){
+    		negative = Math.round(Math.random());
+    		counterbalence = Math.round(Math.random());
+    		if (negative == 0){
+    			if (counterbalence == 0){
+    				return [slideW, slideL];
+    			} else{
+    				return [slideL, slideW];
+    			}
+    		} else{
+    			if (counterbalence == 0 ){
+    				return [slideDW, slideDL];
+    			} else{
+    				return [slideDL, slideDW];
+    			}
+    		}
+    	}
+
+    	/*style it they way I want it*/
+    	$(document.body).css("background-color", "black");
+    	$(document.body).css("color", "white");
+
+
+    	/*instruction*/
+
+    	var instruction_block = {
+    		type: "instructions",
+    		pages: ["Welcome to the experiment. Press \"Next\" to continue.",
+    				"<p>In this experiment, you will see several pairs of shapes and choose between them.</p>" +
+      				"<p>One of the shapes is associated with a gain or a loss between $0.20 - $12.</p>" + 
+    				"<p>The other shape does not have a gain or a loss. In other words, the amount is 0.</p>" +
+    				"<p>Press \"Next\" to continue.</p>",
+    				"<p>Before each pair of shapes, you will be told the amount that you could win or lose.</p>" + 
+    				"<p>You will be asked how you would feel if you lost or wone</p>" + 
+    				"<p>Please press Q to choose the left and P for the right.</p>" + 
+    				"<p>Press \"Next\" to begin the experiment.</p>"],
+    		show_clickable_nav: true,
+    		allow_backward: false
+    	};
+
+    	var instruction_block2 = {
+    		type: "instructions",
+    		pages: ["<p>Now you will be asked how you feel after you choose the shapes</p>" + 
+    				"<p>Press \'Next\' to continue.</p>"],
+    		show_clickable_nav: true,
+    		allow_backward: false
+    	}
+
+    	/*feeling expected task*/
+
+    	var feel_expect_value = [];
+    	for(var i = (2/10); i <= 12; i += (2/10)){
+    		feel_expect_value.push(parseFloat((i).toFixed(1)));
+    		feel_expect_value.push(-parseFloat((i).toFixed(1)));
+    	}
+
+    	feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_expect_value, feel_trialNum);
+
+    	var feel_expect_img_L = new Array(feel_trialNum);
+    	var feel_expect_img_R = new Array(feel_trialNum);
+    	for(var i = 1; i <= feel_trialNum; i += 1){
+    		feel_expect_img_L[i - 1] = i;
+    		feel_expect_img_R[i - 1] = i;
+    	}
+
+    	feel_expect_img_L = jsPsych.randomization.shuffle(feel_expect_img_L);
+    	feel_expect_img_R = jsPsych.randomization.shuffle(feel_expect_img_R);
+
+    	feel_expect = []
+
+    	for(var i = 1; i <= 1; i+=1){
+    		var value = feel_expect_value[i - 1];
+    		var counterbalence = Math.round(Math.random());
+    		
+    		var trial = {
+				type: "xab-image",
+				x_duration: 0,
+				x_duration_gap: 0,
+				stimuli: (counterbalence == 0 ? ["img/stim1.jpg", "img/stim2.jpg"] : ["img/stim2.jpg", "img/stim1.jpg"])
+			}
+
+    		feel_expect.push(fixate);
+    		feel_expect.push(createInfo(value));
+    		feel_expect = feel_expect.concat(createFeelExpectSlide());
+    		feel_expect.push(trial);
+    		feel_expect.push(getFeedback(value));
+
+    	}
+
+    	/*feel experience */
+
+    	var feel_experience_value = [];
+    	for(var i = (2/10); i <= 12; i += (2/10)){
+    		feel_experience_value.push(parseFloat((i).toFixed(1)));
+    		feel_experience_value.push(-parseFloat((i).toFixed(1)));
+    	}
+
+    	feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_experience_value, feel_trialNum);
+
+    	var feel_experience_img_L = new Array(feel_trialNum);
+    	var feel_experience_img_R = new Array(feel_trialNum);
+    	for(var i = 1; i <= feel_trialNum; i += 1){
+    		feel_experience_img_L[i - 1] = i;
+    		feel_experience_img_R[i - 1] = i;
+    	}
+
+    	feel_experience_img_L = jsPsych.randomization.shuffle(feel_experience_img_L);
+    	feel_experience_img_R = jsPsych.randomization.shuffle(feel_experience_img_R);
+
+    	feel_experience = [];
+
+    	feel_experience.push(instruction_block2);
+
+    	for(var i = 1; i <= 5; i+=1){
+
+       		value = feel_experience_value[i - 1];
+    		counterbalence = Math.round(Math.random());
+
+    		var trial = {
+				type: "xab-image",
+				x_duration: 0,
+				x_duration_gap: 0,
+				stimuli: (counterbalence == 0 ? ["img/stim1.jpg", "img/stim2.jpg"] : ["img/stim2.jpg", "img/stim1.jpg"])
+			}
+
+    		feel_experience.push(fixate);
+    		feel_experience.push(createInfo(value));
+    		feel_experience.push(trial);
+    		feel_experience.push(getFeedback(value));
+    		feel_experience.push(slideN);
+    	}
+
+
+    	/*init timeline*/
+    	var  timeline = [];
+    	timeline.push(instruction_block);
+    	timeline = timeline.concat(feel_expect);
+    	timeline = timeline.concat(feel_experience);
+    	/*init expt*/
+    	jsPsych.init({
+    		timeline: timeline,
+    		on_finish: function(){
+    			jsPsych.data.displayData();
+    		}
+    	});
+
+    </script>
+</html>
+
+
