@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="jsPsych/jspsych.js"></script>
+  <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
+  <link rel="stylesheet" href="jsPsych/css/jspsych.css"></link>
+</head>
+<body></body>
+<script>
+
+  function createCircle(value, value2){
+    var canvas = document.createElement('canvas');
+
+    canvas.width = 400;
+    canvas.height = 400;
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.arc(200, 200, 180, 0 , 2*Math.PI);
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    ctx.font = "30pt Arial";
+    ctx.textAlign = "center";
+
+    if (arguments.length == 1){
+      if(value == 0){
+        ctx.fillStyle = "white";
+        ctx.fillText("$0", 200,215);
+      } else if(value < 0){
+        ctx.fillStyle = "red";
+        ctx.fillText("LOSE", 200, 195);
+        ctx.fillText("-$" + String(-value), 200, 235);
+      } else{
+        ctx.fillStyle = "green";
+        ctx.fillText("WIN", 200, 195)
+        ctx.fillText("+$" + String(value), 200, 235);
+      }
+      dataURL = canvas.toDataURL();
+      return "<img src=\"" + dataURL + "\">";
+    } else if(arguments.length == 2){
+        var counterbalence = Math.round(Math.random());
+        var left = (counterbalence ? value2 : value);
+        var right = (counterbalence ? value : value2);
+        ctx.beginPath();
+        ctx.moveTo(200, 20);
+        ctx.lineTo(200, 380);
+        ctx.stroke();
+
+        if(left == 0){
+          ctx.fillStyle = "white";
+          ctx.fillText("$0", 110, 215);
+        } else if(left < 0){
+          ctx.fillStyle = "red";
+          ctx.fillText("LOSE", 110, 195)
+          ctx.fillText("-$" + String(-left), 110, 235);
+        } else{
+          ctx.fillStyle = "green";
+          ctx.fillText("WIN", 110, 195)
+          ctx.fillText("+$" + String(left), 110, 235);
+        }
+
+        if(right == 0){
+          ctx.fillStyle = "white";
+          ctx.fillText("$0", 290, 215);
+        } else if(right < 0){
+          ctx.fillStyle = "red";
+          ctx.fillText("LOSE", 290, 195);
+          ctx.fillText("-$" + String(-right), 290, 235);
+        } else{
+          ctx.fillStyle = "green";
+          ctx.fillText("LOSE", 290, 195);
+          ctx.fillText("+$" + String(right), 290, 235);
+        }
+
+      dataURL = canvas.toDataURL();
+      return "<img src=\"" + dataURL + "\">";
+    }
+  }
+
+
+
+  var trial_3 = {
+    type: 'html-keyboard-response',
+    stimulus: createCircle(-2.2, 0),
+    choices: ['p'],
+    prompt: '<p>No response allowed. 2s wait.</p>'
+  }
+
+  jsPsych.init({
+    timeline: [trial_3],
+    on_finish: function() {
+      jsPsych.data.displayData();
+    },
+    default_iti: 250
+  });
+</script>
+
+</html>
