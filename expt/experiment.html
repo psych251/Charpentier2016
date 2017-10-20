@@ -21,7 +21,8 @@
     </body>
     <script>
     	/* param */
-    	var feel_trialNum = 40;
+    	var feel_trialNum = 5;
+        var gamble_trialNum = 5;
 
     	/* helper trials and functions */
     	var fixate = {
@@ -93,7 +94,8 @@
     				type: "html-keyboard-response",
     				stimulus: "<h2>+$0</h2>",
     				choices: jsPsych.NO_KEYS,
-    				trial_duration: 2000
+    				trial_duration: 2000,
+                    data: {earn: 0}
     			} 
     			return feedback;
     		} else if(value > 0){
@@ -101,7 +103,8 @@
     				type: "html-keyboard-response",
     				stimulus: "<h2><span style=\"color:green\">+$" + String(value) + "</span></h2>",
     				choices: jsPsych.NO_KEYS,
-    				trial_duration: 2000
+    				trial_duration: 2000,
+                    data: {earn: value}
     			} 
     			return feedback;
     		} else{
@@ -109,7 +112,8 @@
     				type: "html-keyboard-response",
     				stimulus: "<h2><span style=\"color:red\">-$" + String(-value) + "</span></h2>",
     				choices: jsPsych.NO_KEYS,
-    				trial_duration: 2000
+    				trial_duration: 2000,
+                    data: {earn: value}
     			}
     			return feedback;
     		}
@@ -132,6 +136,83 @@
     			}
     		}
     	}
+
+        function createCircle(value, value2){
+            var canvas = document.createElement('canvas');
+
+            canvas.width = 400;
+            canvas.height = 400;
+
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "black";
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+
+            ctx.beginPath();
+            ctx.arc(200, 200, 180, 0 , 2*Math.PI);
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            ctx.font = "30pt Arial";
+            ctx.textAlign = "center";
+
+            if (arguments.length == 1){
+              if(value == 0){
+                ctx.fillStyle = "white";
+                ctx.fillText("$0", 200,215);
+              } else if(value < 0){
+                ctx.fillStyle = "red";
+                ctx.fillText("LOSE", 200, 195);
+                ctx.fillText("-$" + String(-value), 200, 235);
+              } else{
+                ctx.fillStyle = "green";
+                ctx.fillText("WIN", 200, 195)
+                ctx.fillText("+$" + String(value), 200, 235);
+              }
+              dataURL = canvas.toDataURL();
+              return "<img src=\"" + dataURL + "\">";
+
+            } else if(arguments.length == 2){
+                var counterbalence = Math.round(Math.random());
+                var left = (counterbalence ? value2 : value);
+                var right = (counterbalence ? value : value2);
+                ctx.beginPath();
+                ctx.moveTo(200, 20);
+                ctx.lineTo(200, 380);
+                ctx.stroke();
+
+                if(left == 0){
+                  ctx.fillStyle = "white";
+                  ctx.fillText("$0", 110, 215);
+                } else if(left < 0){
+                  ctx.fillStyle = "red";
+                  ctx.fillText("LOSE", 110, 195)
+                  ctx.fillText("-$" + String(-left), 110, 235);
+                } else{
+                  ctx.fillStyle = "green";
+                  ctx.fillText("WIN", 110, 195)
+                  ctx.fillText("+$" + String(left), 110, 235);
+                }
+
+                if(right == 0){
+                  ctx.fillStyle = "white";
+                  ctx.fillText("$0", 290, 215);
+                } else if(right < 0){
+                  ctx.fillStyle = "red";
+                  ctx.fillText("LOSE", 290, 195);
+                  ctx.fillText("-$" + String(-right), 290, 235);
+                } else{
+                  ctx.fillStyle = "green";
+                  ctx.fillText("LOSE", 290, 195);
+                  ctx.fillText("+$" + String(right), 290, 235);
+                }
+
+              dataURL = canvas.toDataURL();
+              return "<img src=\"" + dataURL + "\">";
+            }
+          }
+
+
 
     	/*style it they way I want it*/
     	$(document.body).css("background-color", "black");
@@ -185,7 +266,7 @@
 
     	feel_expect = []
 
-    	for(var i = 1; i <= 1; i+=1){
+    	for(var i = 1; i <= feel_trialNum; i+=1){
     		var value = feel_expect_value[i - 1];
     		var counterbalence = Math.round(Math.random());
     		
@@ -228,7 +309,7 @@
 
     	feel_experience.push(instruction_block2);
 
-    	for(var i = 1; i <= 5; i+=1){
+    	for(var i = 1; i <= feel_trialNum; i+=1){
 
        		value = feel_experience_value[i - 1];
     		counterbalence = Math.round(Math.random());
@@ -246,6 +327,9 @@
     		feel_experience.push(getFeedback(value));
     		feel_experience.push(slideN);
     	}
+
+        /*gambling task */
+
 
 
     	/*init timeline*/
