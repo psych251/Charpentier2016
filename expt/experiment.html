@@ -10,6 +10,7 @@
         <script src="jsPsych/plugins/jspsych-image-slider-response.js"></script>
         <script src="jsPsych/plugins/jspsych-image-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jsPsych/plugins/jspsych-xab-html.js"></script>
         <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
         <style>
     		img {
@@ -21,8 +22,11 @@
     </body>
     <script>
     	/* param */
-    	var feel_trialNum = 5;
-        var gamble_trialNum = 5;
+    	var feel_trialNum = 0;
+
+        // needs to be multiple of 3
+        // otherwise it will round
+        var gamble_trialNum = 3;
 
     	/* helper trials and functions */
     	var fixate = {
@@ -246,6 +250,7 @@
 
     	/*feeling expected task*/
 
+        // init trial param
     	var feel_expect_value = [];
     	for(var i = (2/10); i <= 12; i += (2/10)){
     		feel_expect_value.push(parseFloat((i).toFixed(1)));
@@ -266,6 +271,7 @@
 
     	feel_expect = []
 
+        // create trial param
     	for(var i = 1; i <= feel_trialNum; i+=1){
     		var value = feel_expect_value[i - 1];
     		var counterbalence = Math.round(Math.random());
@@ -287,6 +293,7 @@
 
     	/*feel experience */
 
+        // init trial param
     	var feel_experience_value = [];
     	for(var i = (2/10); i <= 12; i += (2/10)){
     		feel_experience_value.push(parseFloat((i).toFixed(1)));
@@ -309,6 +316,7 @@
 
     	feel_experience.push(instruction_block2);
 
+        // create trials
     	for(var i = 1; i <= feel_trialNum; i+=1){
 
        		value = feel_experience_value[i - 1];
@@ -330,13 +338,107 @@
 
         /*gambling task */
 
+        // init instructions
+        var instruction_block3 = {
+            type: "instructions",
+            pages: ["<p>Now you will see a series of monetary choices. One of the choice will be a sure option, and the other will be a 50/50 option.</p>" +
+                    "<p>The results of one randomly selected trial will be added to your payment.</p>" +
+                    "<p>Press \"Next\" to continue."],
+            show_clickable_nav: true,
+            allow_backward: false
+        }
 
+        var gambleNum = Math.round(gamble_trialNum / 3);
+
+        // init trial types randomzied
+        var gamble_trial_type = [];
+        for(var i = 1; i <= gambleNum; i+=1){
+            gamble_trial_type.push("mixed");
+            gamble_trial_type.push("gain");
+            gamble_trial_type.push("loss");
+        }
+
+        // mixed Trials: x = [0.2,12]; win = x, lose = -x, sure = 0
+        // gain Trials: high = [6.2,12], low = [0.2, 6]; win = high, lose = 0, sure = low
+        // losee Trials: high = [6.2,12], low = [0.2, 6]; win = 0, lose  = -high, sure = -low
+
+        gamble_trial_type = jsPsych.randomization.shuffle(gamble_trial_type);
+
+        // init trial values
+        var win = [];
+        var lose = []
+        var sure = [];
+
+        var gamble_value = []
+        var gamble_high_value = [];
+        var gamble_low_value = [];
+
+        for(var i = (2/10); i <= 12; i+=(2/10)){
+            gamble_value.push(parseFloat((i).toFixed(1)));
+            if(i <= 6){
+                gamble_low_value.push(parseFloat((i).toFixed(1)));
+            } else{
+                gamble_high_value.push(parseFloat((i).toFixed(1)));
+            }
+        }
+
+        // mixed param
+        var gamble_value = jsPsych.randomization.sampleWithoutReplacement(gamble_high_value, gamble_trialNum);
+
+        // gain param
+        var gamble_gain_high_value = jsPsych.randomization.sampleWithoutReplacement(gamble_high_value, gamble_trialNum);
+        var gamble_gain_low_value = jsPsych.randomization.sampleWithoutReplacement(gamble_low_value, gamble_trialNum);
+
+        // loss param
+        var gamble_loss_high_value = jsPsych.randomization.sampleWithoutReplacement(gamble_high_value, gamble_trialNum);
+        var gamble_loss_low_value = jsPsych.randomization.sampleWithoutReplacement(gamble_low_value, gamble_trialNum);
+
+        for(var i = 1; i <= gamble_trial_type.length; i+=1){
+            var trial_type = gamble_trial_type[i - 1];
+            if(trial_type == "mixed"){
+                var x = gamble_value.shift();
+                win.push(x);
+                lose.push(-x);
+                sure.push(0);
+            }else if(trial_type == "gain"){
+                win.push(gamble_gain_high_value.shift());
+                lose.push(0);
+                sure.push(gamble_gain_low_value.shift());
+            }else if(trial_type == "loss"){
+                win.push(0);
+                lose.push(-gamble_loss_high_value.shift());
+                sure.push(-gamble_loss_low_value.shift());
+            }
+        }
+
+        // init Trials
+
+        gamble = [];
+        gamble.push(instruction_block3);
+        for(var i = 1; i <= gamble_trial_type.length; i+=1){
+            var gamble_side = (Math.round(Math.random()) ? "R" : "L");
+            console.log(gamble_side);
+            var trial_win = win[i - 1];
+            var trial_lose = lose[i - 1];
+            var trial_sure = sure[i - 1];
+            var trial = {
+                type: 'xab-html',
+                stimuli: ((gamble_side == "R") ? [createCircle(trial_sure), createCircle(trial_win, trial_lose)] : [createCircle(trial_win, trial_lose), createCircle(trial_sure)]),
+                x_duration: 0,
+                x_duration_gap: 0,
+                data: {gamble_trial_type: gamble_trial_type[i - 1], win:trial_win, lose:trial_lose, sure:trial_sure, gamble_side:gamble_side}
+            }
+            gamble.push(fixate);
+            gamble.push(trial);
+
+        }
 
     	/*init timeline*/
     	var  timeline = [];
     	timeline.push(instruction_block);
     	timeline = timeline.concat(feel_expect);
     	timeline = timeline.concat(feel_experience);
+        timeline = timeline.concat(gamble);
     	/*init expt*/
     	jsPsych.init({
     		timeline: timeline,
