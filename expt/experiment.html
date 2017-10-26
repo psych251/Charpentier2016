@@ -8,6 +8,7 @@
         <script src="jsPsych/plugins/jspsych-instructions.js"></script>
         <script src="jsPsych/plugins/jspsych-xab-image.js"></script>
         <script src="jsPsych/plugins/jspsych-image-slider-response.js"></script>
+        <script src="jsPsych/plugins/jspsych-html-slider-response.js"></script>
         <script src="jsPsych/plugins/jspsych-image-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-xab-html.js"></script>
@@ -22,11 +23,11 @@
     </body>
     <script>
     	/* param */
-    	var feel_trialNum = 0;
+    	var feel_trialNum = 5;
 
         // needs to be multiple of 3
         // otherwise it will round
-        var gamble_trialNum = 3;
+        var gamble_trialNum = 5;
 
     	/* helper trials and functions */
     	var fixate = {
@@ -37,37 +38,47 @@
     	}
 
     	var slideW = {
-    		type: "image-slider-response",
-    		stimulus: "img/stimW.jpg",
-    		labels: ["Extremely Unhappy", "Extremely Happy"],
+    		type: "html-slider-response",
+    		stimulus: "<div style=\"width:750px\"><h1>How would you feel if you WIN?</h1> <br> <br></div>",
+    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+            min: 1,
+            max: 7,
    			data: {value: value}
    		}
 
    		var slideL = {
-    		type: "image-slider-response",
-    		stimulus: "img/stimL.jpg",
-    		labels: ["Extremely Unhappy", "Extremely Happy"],
+    		type: "html-slider-response",
+    		stimulus: "<div style=\"width:750px\"><h1>How would you feel if you LOSE?</h1> <br> <br></div>",
+    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+            min: 1,
+            max: 7,
    			data: {value: value}
    		}
 
     	var slideDW = {
-    		type: "image-slider-response",
-    		stimulus: "img/stimDW.jpg",
-    		labels: ["Extremely Unhappy", "Extremely Happy"],
+    		type: "html-slider-response",
+    		stimulus: "<div style=\"width:750px\"><h1>How would you feel if you DON\'T WIN?</h1> <br> <br></div>",
+    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+            min: 1,
+            max: 7,
    			data: {value: value}
    		}
 
 		var slideDL = {
-    		type: "image-slider-response",
-   			stimulus: "img/stimDL.jpg",
-   			labels: ["Extremely Unhappy", "Extremely Happy"],
+    		type: "html-slider-response",
+   			stimulus: "<div style=\"width:750px\"><h1>How would you feel if you DON\'T LOSE?</h1> <br> <br></div>",
+   			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+            min: 1,
+            max: 7,
    			data: {value: value}
 	   	}
 
 	   	var slideN = {
-    		type: "image-slider-response",
-   			stimulus: "img/stimN.jpg",
-   			labels: ["Extremely Unhappy", "Extremely Happy"],
+    		type: "html-slider-response",
+   			stimulus: "<div style=\"width:750px\"><h1>How do you feel NOW?</h1> <br> <br></div>",
+   			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+            min: 1,
+            max: 7,
    			data: {value: value}
 	   	}
 
@@ -432,6 +443,18 @@
             gamble.push(trial);
 
         }
+
+        /*change keyboard*/
+
+        document.body.onkeydown = function(event){
+            if (event.keyCode === 32) {
+                $("#jspsych-html-slider-response-next").click();
+            } else if(event.keyCode === 81){
+                document.getElementById("jspsych-html-slider-response-response").stepDown(1);
+            } else if(event.keyCode === 80){
+                document.getElementById("jspsych-html-slider-response-response").stepUp(1);
+            }
+        };
 
     	/*init timeline*/
     	var  timeline = [];
