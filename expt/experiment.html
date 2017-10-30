@@ -23,11 +23,11 @@
     </body>
     <script>
     	/* param */
-    	var feel_trialNum = 5;
+    	var feel_trialNum = 2;
 
         // needs to be multiple of 3
         // otherwise it will round
-        var gamble_trialNum = 5;
+        var gamble_trialNum = 6;
 
     	/* helper trials and functions */
     	var fixate = {
@@ -239,22 +239,26 @@
     	var instruction_block = {
     		type: "instructions",
     		pages: ["Welcome to the experiment. Press \"Next\" to continue.",
-    				"<p>In this experiment, you will see several pairs of shapes and choose between them.</p>" +
+                    "<p>There are three tasks in this experiment. All of the tasks require you to select a choice with an associated monetary effect.</p>", 
+    				"<p>In the first task, you will first see several pairs of shapes and choose between them.</p>" +
       				"<p>One of the shapes is associated with a gain or a loss between $0.20 - $12.</p>" + 
     				"<p>The other shape does not have a gain or a loss. In other words, the amount is 0.</p>" +
     				"<p>Press \"Next\" to continue.</p>",
     				"<p>Before each pair of shapes, you will be told the amount that you could win or lose.</p>" + 
-    				"<p>You will be asked how you would feel if you lost or wone</p>" + 
-    				"<p>Please press Q to choose the left and P for the right.</p>" + 
-    				"<p>Press \"Next\" to begin the experiment.</p>"],
+    				"<p>You will be asked how you would feel if you lost or won the amount that was shown.</p>" + 
+    				"<p>Please press Q to choose the shape on the left and P for the shape on the right.</p>",
+                    "<p>When prompted to report your feelings, \n Please use Q to shift the slider to the left and P to shift the slider to the right.</p>" +
+                    "<p>Press the SpaceBar to confirm your choice.", 
+    				"<p>Press \"Next\" when you are ready to start the task.</p>"],
     		show_clickable_nav: true,
     		allow_backward: false
     	};
 
     	var instruction_block2 = {
     		type: "instructions",
-    		pages: ["<p>Now you will be asked how you feel after you choose the shapes</p>" + 
-    				"<p>Press \'Next\' to continue.</p>"],
+    		pages: ["<p>You will now be asked to complete the same task.</p>" +
+                    "<p>This time, you will be asked how you feel after you choose the shapes, not before</p>",
+    				"<p>Press \'Next\' when you are ready to start the task.</p>"],
     		show_clickable_nav: true,
     		allow_backward: false
     	}
@@ -262,13 +266,9 @@
     	/*feeling expected task*/
 
         // init trial param
-    	var feel_expect_value = [];
-    	for(var i = (2/10); i <= 12; i += (2/10)){
-    		feel_expect_value.push(parseFloat((i).toFixed(1)));
-    		feel_expect_value.push(-parseFloat((i).toFixed(1)));
-    	}
+    	var feel_value = [-12, 12, -10, 10, -8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
 
-    	feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_expect_value, feel_trialNum);
+    	feel_expect_value = jsPsych.randomization.sampleWithReplacement(feel_value, feel_trialNum);
 
     	var feel_expect_img_L = new Array(feel_trialNum);
     	var feel_expect_img_R = new Array(feel_trialNum);
@@ -305,13 +305,7 @@
     	/*feel experience */
 
         // init trial param
-    	var feel_experience_value = [];
-    	for(var i = (2/10); i <= 12; i += (2/10)){
-    		feel_experience_value.push(parseFloat((i).toFixed(1)));
-    		feel_experience_value.push(-parseFloat((i).toFixed(1)));
-    	}
-
-    	feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_experience_value, feel_trialNum);
+    	feel_experience_value = jsPsych.randomization.sampleWithReplacement(feel_value, feel_trialNum);
 
     	var feel_experience_img_L = new Array(feel_trialNum);
     	var feel_experience_img_R = new Array(feel_trialNum);
@@ -352,9 +346,10 @@
         // init instructions
         var instruction_block3 = {
             type: "instructions",
-            pages: ["<p>Now you will see a series of monetary choices. One of the choice will be a sure option, and the other will be a 50/50 option.</p>" +
-                    "<p>The results of one randomly selected trial will be added to your payment.</p>" +
-                    "<p>Press \"Next\" to continue."],
+            pages: ["<p>Now you will see a series of monetary choices. One of the choice will be a sure option, and the other will be a 50/50 chance option.</p>" +
+                    "<p>The results of one randomly selected trial will be added to your payment.</p>",
+                    "<p>Please use Q to select the left option, and P to select the right option</p>",
+                    "<p>Press \"Next\" when you are ready to start the task."],
             show_clickable_nav: true,
             allow_backward: false
         }
@@ -362,6 +357,8 @@
         var gambleNum = Math.round(gamble_trialNum / 3);
 
         // init trial types randomzied
+        // equally distribute each type of trials
+
         var gamble_trial_type = [];
         for(var i = 1; i <= gambleNum; i+=1){
             gamble_trial_type.push("mixed");
@@ -380,36 +377,37 @@
         var lose = []
         var sure = [];
 
-        var gamble_value = []
+        var high_low_thresh = 6;
+
+        var gamble_value = [-12, 12, -10, 10, -8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
         var gamble_high_value = [];
         var gamble_low_value = [];
 
-        for(var i = (2/10); i <= 12; i+=(2/10)){
-            gamble_value.push(parseFloat((i).toFixed(1)));
-            if(i <= 6){
-                gamble_low_value.push(parseFloat((i).toFixed(1)));
+        for(var index in gamble_value){
+            var value = gamble_value[index];
+            if(Math.abs(value) < high_low_thresh){
+                gamble_low_value.push(value);
             } else{
-                gamble_high_value.push(parseFloat((i).toFixed(1)));
+                gamble_high_value.push(value);
             }
         }
 
         // mixed param
-        var gamble_value = jsPsych.randomization.sampleWithoutReplacement(gamble_high_value, gamble_trialNum);
+        var gamble_mixed_value = jsPsych.randomization.sampleWithReplacement(gamble_value, 2 * gamble_trialNum);
 
         // gain param
-        var gamble_gain_high_value = jsPsych.randomization.sampleWithoutReplacement(gamble_high_value, gamble_trialNum);
-        var gamble_gain_low_value = jsPsych.randomization.sampleWithoutReplacement(gamble_low_value, gamble_trialNum);
+        var gamble_gain_high_value = jsPsych.randomization.sampleWithReplacement(gamble_high_value, gamble_trialNum);
+        var gamble_gain_low_value = jsPsych.randomization.sampleWithReplacement(gamble_low_value, gamble_trialNum);
 
         // loss param
-        var gamble_loss_high_value = jsPsych.randomization.sampleWithoutReplacement(gamble_high_value, gamble_trialNum);
-        var gamble_loss_low_value = jsPsych.randomization.sampleWithoutReplacement(gamble_low_value, gamble_trialNum);
+        var gamble_loss_high_value = jsPsych.randomization.sampleWithReplacement(gamble_high_value, gamble_trialNum);
+        var gamble_loss_low_value = jsPsych.randomization.sampleWithReplacement(gamble_low_value, gamble_trialNum);
 
         for(var i = 1; i <= gamble_trial_type.length; i+=1){
             var trial_type = gamble_trial_type[i - 1];
             if(trial_type == "mixed"){
-                var x = gamble_value.shift();
-                win.push(x);
-                lose.push(-x);
+                win.push(Math.abs(gamble_mixed_value.shift()));
+                lose.push(-Math.abs(gamble_mixed_value.shift()));
                 sure.push(0);
             }else if(trial_type == "gain"){
                 win.push(gamble_gain_high_value.shift());
@@ -466,7 +464,7 @@
     	jsPsych.init({
     		timeline: timeline,
     		on_finish: function(){
-    			jsPsych.data.displayData();
+                jsPsych.data.get().localSave('json', 'pilot.json');
     		}
     	});
 
