@@ -1,0 +1,22 @@
+---
+title: "pilot_analysis"
+author: "Michael Ko"
+date: "October 30, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pilot Analysis
+
+
+```{r}
+d <- read.csv('../expt/pilot_data/pilot.csv')
+```
+

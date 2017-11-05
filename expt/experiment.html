@@ -23,7 +23,9 @@
     </body>
     <script>
     	/* param */
-    	var feel_trialNum = 2;
+
+        // has to be multiple of 2
+    	var feel_trialNum = 4;
 
         // needs to be multiple of 3
         // otherwise it will round
@@ -134,16 +136,20 @@
     		}
     	}
 
-    	function createFeelExpectSlide(){
+    	function createFeelExpectSlide(value){
     		negative = Math.round(Math.random());
     		counterbalence = Math.round(Math.random());
     		if (negative == 0){
+                slideW['data'] = {value: value};
+                slideL['data'] = {value: value};
     			if (counterbalence == 0){
     				return [slideW, slideL];
     			} else{
     				return [slideL, slideW];
     			}
     		} else{
+                slideDW['data'] = {value: value};
+                slideDL['data'] = {value: value};
     			if (counterbalence == 0 ){
     				return [slideDW, slideDL];
     			} else{
@@ -151,6 +157,11 @@
     			}
     		}
     	}
+
+        function createFeelExperienceSlide(value){
+            slideN['data'] = {value: value};
+            return slideN;
+        }
 
         function createCircle(value, value2){
             var canvas = document.createElement('canvas');
@@ -178,11 +189,11 @@
               } else if(value < 0){
                 ctx.fillStyle = "red";
                 ctx.fillText("LOSE", 200, 195);
-                ctx.fillText("-$" + String(-value), 200, 235);
+                ctx.fillText("$" + String(-value), 200, 235);
               } else{
                 ctx.fillStyle = "green";
                 ctx.fillText("WIN", 200, 195)
-                ctx.fillText("+$" + String(value), 200, 235);
+                ctx.fillText("$" + String(value), 200, 235);
               }
               dataURL = canvas.toDataURL();
               return "<img src=\"" + dataURL + "\">";
@@ -202,11 +213,11 @@
                 } else if(left < 0){
                   ctx.fillStyle = "red";
                   ctx.fillText("LOSE", 110, 195)
-                  ctx.fillText("-$" + String(-left), 110, 235);
+                  ctx.fillText("$" + String(-left), 110, 235);
                 } else{
                   ctx.fillStyle = "green";
                   ctx.fillText("WIN", 110, 195)
-                  ctx.fillText("+$" + String(left), 110, 235);
+                  ctx.fillText("$" + String(left), 110, 235);
                 }
 
                 if(right == 0){
@@ -215,11 +226,11 @@
                 } else if(right < 0){
                   ctx.fillStyle = "red";
                   ctx.fillText("LOSE", 290, 195);
-                  ctx.fillText("-$" + String(-right), 290, 235);
+                  ctx.fillText("$" + String(-right), 290, 235);
                 } else{
                   ctx.fillStyle = "green";
-                  ctx.fillText("LOSE", 290, 195);
-                  ctx.fillText("+$" + String(right), 290, 235);
+                  ctx.fillText("WIN", 290, 195);
+                  ctx.fillText("$" + String(right), 290, 235);
                 }
 
               dataURL = canvas.toDataURL();
@@ -242,13 +253,12 @@
                     "<p>There are three tasks in this experiment. All of the tasks require you to select a choice with an associated monetary effect.</p>", 
     				"<p>In the first task, you will first see several pairs of shapes and choose between them.</p>" +
       				"<p>One of the shapes is associated with a gain or a loss between $0.20 - $12.</p>" + 
-    				"<p>The other shape does not have a gain or a loss. In other words, the amount is 0.</p>" +
-    				"<p>Press \"Next\" to continue.</p>",
+    				"<p>The other shape does not have a gain or a loss. In other words, the amount is $0.</p>",
     				"<p>Before each pair of shapes, you will be told the amount that you could win or lose.</p>" + 
     				"<p>You will be asked how you would feel if you lost or won the amount that was shown.</p>" + 
-    				"<p>Please press Q to choose the shape on the left and P for the shape on the right.</p>",
-                    "<p>When prompted to report your feelings, \n Please use Q to shift the slider to the left and P to shift the slider to the right.</p>" +
-                    "<p>Press the SpaceBar to confirm your choice.", 
+                    "<p>When prompted to report your feelings, \n please use Q to shift the slider to the left and P to shift the slider to the right.</p>" +
+                    "<p>Press the Spacebar to confirm your choice.", 
+                    "<p>Please press Q to choose the shape on the left and P to choose the shape on the right.</p>" + 
     				"<p>Press \"Next\" when you are ready to start the task.</p>"],
     		show_clickable_nav: true,
     		allow_backward: false
@@ -257,7 +267,7 @@
     	var instruction_block2 = {
     		type: "instructions",
     		pages: ["<p>You will now be asked to complete the same task.</p>" +
-                    "<p>This time, you will be asked how you feel after you choose the shapes, not before</p>",
+                    "<p>This time, you will be asked how you feel after you choose the shapes, not before.</p>",
     				"<p>Press \'Next\' when you are ready to start the task.</p>"],
     		show_clickable_nav: true,
     		allow_backward: false
@@ -268,35 +278,38 @@
         // init trial param
     	var feel_value = [-12, 12, -10, 10, -8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
 
-    	feel_expect_value = jsPsych.randomization.sampleWithReplacement(feel_value, feel_trialNum);
+    	feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
+        feel_expect_value = feel_expect_value.concat(feel_expect_value);
+        feel_expect_value = jsPsych.randomization.shuffle(feel_expect_value);
 
-    	var feel_expect_img_L = new Array(feel_trialNum);
-    	var feel_expect_img_R = new Array(feel_trialNum);
-    	for(var i = 1; i <= feel_trialNum; i += 1){
-    		feel_expect_img_L[i - 1] = i;
-    		feel_expect_img_R[i - 1] = i;
+
+    	var feel_expect_img = new Array(feel_trialNum * 2);
+    	for(var i = 1; i <= feel_trialNum * 2; i += 1){
+    		feel_expect_img[i - 1] = i;
     	}
 
-    	feel_expect_img_L = jsPsych.randomization.shuffle(feel_expect_img_L);
-    	feel_expect_img_R = jsPsych.randomization.shuffle(feel_expect_img_R);
+        feel_expect_img = jsPsych.randomization.shuffle(feel_expect_img);
 
-    	feel_expect = []
+    	feel_expect_img_L = feel_expect_img.slice(0, feel_trialNum);
+    	feel_expect_img_R = feel_expect_img.slice(feel_trialNum, feel_trialNum * 2);
 
-        // create trial param
+
+        //create blocks
+    	feel_expect = [];
+
     	for(var i = 1; i <= feel_trialNum; i+=1){
     		var value = feel_expect_value[i - 1];
-    		var counterbalence = Math.round(Math.random());
     		
     		var trial = {
 				type: "xab-image",
 				x_duration: 0,
 				x_duration_gap: 0,
-				stimuli: (counterbalence == 0 ? ["img/stim1.jpg", "img/stim2.jpg"] : ["img/stim2.jpg", "img/stim1.jpg"])
+				stimuli: ["img/stim" + feel_expect_img_L[i-1] + ".jpg", "img/stim" + feel_expect_img_R[i-1] + ".jpg"]
 			}
 
     		feel_expect.push(fixate);
     		feel_expect.push(createInfo(value));
-    		feel_expect = feel_expect.concat(createFeelExpectSlide());
+    		feel_expect = feel_expect.concat(createFeelExpectSlide(value));
     		feel_expect.push(trial);
     		feel_expect.push(getFeedback(value));
 
@@ -305,23 +318,26 @@
     	/*feel experience */
 
         // init trial param
-    	feel_experience_value = jsPsych.randomization.sampleWithReplacement(feel_value, feel_trialNum);
+    	feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
+        feel_experience_value = feel_experience_value.concat(feel_experience_value);
+        feel_experience_value = jsPsych.randomization.shuffle(feel_experience_value);
 
-    	var feel_experience_img_L = new Array(feel_trialNum);
-    	var feel_experience_img_R = new Array(feel_trialNum);
-    	for(var i = 1; i <= feel_trialNum; i += 1){
-    		feel_experience_img_L[i - 1] = i;
-    		feel_experience_img_R[i - 1] = i;
+    	var feel_experience_img = new Array(feel_trialNum * 2);
+    	for(var i = 1; i <= feel_trialNum * 2; i += 1){
+    		feel_experience_img[i - 1] = i;
     	}
 
-    	feel_experience_img_L = jsPsych.randomization.shuffle(feel_experience_img_L);
-    	feel_experience_img_R = jsPsych.randomization.shuffle(feel_experience_img_R);
+        feel_experience_img = jsPsych.randomization.shuffle(feel_experience_img);
 
+    	feel_experience_img_L = feel_experience_img.slice(0, feel_trialNum);
+    	feel_experience_img_R = feel_experience_img.slice(feel_trialNum, feel_trialNum * 2);
+
+
+        // create blocks
     	feel_experience = [];
 
     	feel_experience.push(instruction_block2);
 
-        // create trials
     	for(var i = 1; i <= feel_trialNum; i+=1){
 
        		value = feel_experience_value[i - 1];
@@ -338,7 +354,7 @@
     		feel_experience.push(createInfo(value));
     		feel_experience.push(trial);
     		feel_experience.push(getFeedback(value));
-    		feel_experience.push(slideN);
+    		feel_experience.push(createFeelExperienceSlide(value));
     	}
 
         /*gambling task */
@@ -348,7 +364,7 @@
             type: "instructions",
             pages: ["<p>Now you will see a series of monetary choices. One of the choice will be a sure option, and the other will be a 50/50 chance option.</p>" +
                     "<p>The results of one randomly selected trial will be added to your payment.</p>",
-                    "<p>Please use Q to select the left option, and P to select the right option</p>",
+                    "<p>Please use Q to select the left option, and P to select the right option.</p>",
                     "<p>Press \"Next\" when you are ready to start the task."],
             show_clickable_nav: true,
             allow_backward: false
@@ -385,10 +401,12 @@
 
         for(var index in gamble_value){
             var value = gamble_value[index];
-            if(Math.abs(value) < high_low_thresh){
-                gamble_low_value.push(value);
-            } else{
-                gamble_high_value.push(value);
+            if(value > 0){
+                if(value < high_low_thresh){
+                    gamble_low_value.push(value);
+                } else{
+                    gamble_high_value.push(value);
+                }
             }
         }
 
@@ -435,7 +453,7 @@
                 stimuli: ((gamble_side == "R") ? [createCircle(trial_sure), createCircle(trial_win, trial_lose)] : [createCircle(trial_win, trial_lose), createCircle(trial_sure)]),
                 x_duration: 0,
                 x_duration_gap: 0,
-                data: {gamble_trial_type: gamble_trial_type[i - 1], win:trial_win, lose:trial_lose, sure:trial_sure, gamble_side:gamble_side}
+                data: {gamble_trial_type: gamble_trial_type[i - 1], win:trial_win, lose:trial_lose, sure:trial_sure, gamble_side: gamble_side}
             }
             gamble.push(fixate);
             gamble.push(trial);
@@ -464,7 +482,8 @@
     	jsPsych.init({
     		timeline: timeline,
     		on_finish: function(){
-                jsPsych.data.get().localSave('json', 'pilot.json');
+                //jsPsych.data.get().localSave('csv', 'pilot.csv');
+                jsPsych.data.displayData();
     		}
     	});
 
