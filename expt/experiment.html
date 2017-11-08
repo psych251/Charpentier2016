@@ -12,8 +12,8 @@
         <script src="jsPsych/plugins/jspsych-image-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-xab-html.js"></script>
+        <script src="mmturkey.js"></script>
         <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
-        <script src="javascript/mmturkey.js"></script>
         <style>
     		img {
       			width: 400px;
@@ -33,6 +33,10 @@
         var gamble_trialNum = 6;
 
     	/* helper trials and functions */
+
+        var slider_prompt = "Press Q to move left, P to move right. \n Spacebar to confirm your choice.";
+        var select_choice_prompt = "<p>Press Q to choose left, P to choose right.</p>"
+
     	var fixate = {
     		type: "image-keyboard-response",
     		stimulus: "img/cross.jpg",
@@ -46,6 +50,7 @@
     		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
             max: 7,
+            prompt: slider_prompt,
    			data: {value: value}
    		}
 
@@ -55,6 +60,7 @@
     		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
             max: 7,
+            prompt: slider_prompt,
    			data: {value: value}
    		}
 
@@ -64,6 +70,7 @@
     		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
             max: 7,
+            prompt: slider_prompt,
    			data: {value: value}
    		}
 
@@ -73,6 +80,7 @@
    			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
             max: 7,
+            prompt: slider_prompt,
    			data: {value: value}
 	   	}
 
@@ -82,6 +90,7 @@
    			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
             max: 7,
+            prompt: slider_prompt,
    			data: {value: value}
 	   	}
 
@@ -305,6 +314,7 @@
 				type: "xab-image",
 				x_duration: 0,
 				x_duration_gap: 0,
+                prompt: select_choice_prompt,
 				stimuli: ["img/stim" + feel_expect_img_L[i-1] + ".jpg", "img/stim" + feel_expect_img_R[i-1] + ".jpg"]
 			}
 
@@ -347,6 +357,7 @@
 				type: "xab-image",
 				x_duration: 0,
 				x_duration_gap: 0,
+                prompt: select_choice_prompt,
 				stimuli: ["img/stim" + feel_experience_img_L[i-1] + ".jpg", "img/stim" + feel_experience_img_R[i-1] + ".jpg"]
 			}
 
@@ -453,6 +464,7 @@
                 stimuli: ((gamble_side == "R") ? [createCircle(trial_sure), createCircle(trial_win, trial_lose)] : [createCircle(trial_win, trial_lose), createCircle(trial_sure)]),
                 x_duration: 0,
                 x_duration_gap: 0,
+                prompt: select_choice_prompt,
                 data: {gamble_trial_type: gamble_trial_type[i - 1], win:trial_win, lose:trial_lose, sure:trial_sure, gamble_side: gamble_side}
             }
             gamble.push(fixate);
