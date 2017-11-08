@@ -13,6 +13,7 @@
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-xab-html.js"></script>
         <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+        <script src="javascript/mmturkey.js"></script>
         <style>
     		img {
       			width: 400px;
@@ -25,7 +26,7 @@
     	/* param */
 
         // has to be multiple of 2
-    	var feel_trialNum = 4;
+    	var feel_trialNum = 2;
 
         // needs to be multiple of 3
         // otherwise it will round
@@ -341,13 +342,12 @@
     	for(var i = 1; i <= feel_trialNum; i+=1){
 
        		value = feel_experience_value[i - 1];
-    		counterbalence = Math.round(Math.random());
 
     		var trial = {
 				type: "xab-image",
 				x_duration: 0,
 				x_duration_gap: 0,
-				stimuli: (counterbalence == 0 ? ["img/stim1.jpg", "img/stim2.jpg"] : ["img/stim2.jpg", "img/stim1.jpg"])
+				stimuli: ["img/stim" + feel_experience_img_L[i-1] + ".jpg", "img/stim" + feel_experience_img_R[i-1] + ".jpg"]
 			}
 
     		feel_experience.push(fixate);
@@ -478,12 +478,27 @@
     	timeline = timeline.concat(feel_expect);
     	timeline = timeline.concat(feel_experience);
         timeline = timeline.concat(gamble);
-    	/*init expt*/
+
+    	/*init expt and save data*/
+
+        /*
+        function saveData(filename, filedata){
+            $.ajax({
+                type:'post',
+                cache: false,
+                url: 'save_data.php', // this is the path to the above PHP script
+                data: {filename: filename, filedata: filedata}
+                });
+
+            }
+        */
+
     	jsPsych.init({
     		timeline: timeline,
-    		on_finish: function(){
+    		on_finish: function(data){
+                opener.turk.submit(jsPsych.data.getData());
+                //saveData("pilot_data.csv", jsPsych.data.get().csv();
                 //jsPsych.data.get().localSave('csv', 'pilot.csv');
-                jsPsych.data.displayData();
     		}
     	});
 
