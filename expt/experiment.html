@@ -26,11 +26,12 @@
     	/* param */
 
         // has to be multiple of 2
-    	var feel_trialNum = 2;
+    	var feel_trialNum = 20;
 
         // needs to be multiple of 3
         // otherwise it will round
-        var gamble_trialNum = 6;
+        
+        var gamble_trialNum = 10;
 
     	/* helper trials and functions */
 
@@ -47,51 +48,51 @@
     	var slideW = {
     		type: "html-slider-response",
     		stimulus: "<div style=\"width:750px\"><h1>How would you feel if you WIN?</h1> <br> <br></div>",
-    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
-            max: 7,
+            max: 9,
             prompt: slider_prompt,
-   			data: {value: value}
+            data: {}
    		}
 
    		var slideL = {
     		type: "html-slider-response",
     		stimulus: "<div style=\"width:750px\"><h1>How would you feel if you LOSE?</h1> <br> <br></div>",
-    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
-            max: 7,
+            max: 9,
             prompt: slider_prompt,
-   			data: {value: value}
+            data: {}
    		}
 
     	var slideDW = {
     		type: "html-slider-response",
     		stimulus: "<div style=\"width:750px\"><h1>How would you feel if you DON\'T WIN?</h1> <br> <br></div>",
-    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+    		labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
-            max: 7,
+            max: 9,
             prompt: slider_prompt,
-   			data: {value: value}
+            data: {}
    		}
 
 		var slideDL = {
     		type: "html-slider-response",
    			stimulus: "<div style=\"width:750px\"><h1>How would you feel if you DON\'T LOSE?</h1> <br> <br></div>",
-   			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+   			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
-            max: 7,
+            max: 9,
             prompt: slider_prompt,
-   			data: {value: value}
+            data: {}
 	   	}
 
 	   	var slideN = {
     		type: "html-slider-response",
    			stimulus: "<div style=\"width:750px\"><h1>How do you feel NOW?</h1> <br> <br></div>",
-   			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "Extremely Happy"],
+   			labels: ["Extremely Unhappy", "|", "|", "|", "|", "|", "|", "|", "Extremely Happy"],
             min: 1,
-            max: 7,
+            max: 9,
             prompt: slider_prompt,
-   			data: {value: value}
+            data: {}
 	   	}
 
     	function createInfo(value){
@@ -115,11 +116,10 @@
     	}
 
     	function getFeedback(value){
-    		zero = Math.round(Math.random());
-    		if (zero == 0){
+    		if (value == 0){
     			var feedback = {
     				type: "html-keyboard-response",
-    				stimulus: "<h2>+$0</h2>",
+    				stimulus: "<h2>$0</h2>",
     				choices: jsPsych.NO_KEYS,
     				trial_duration: 2000,
                     data: {earn: 0}
@@ -147,30 +147,32 @@
     	}
 
     	function createFeelExpectSlide(value){
-    		negative = Math.round(Math.random());
+    		win = Math.round(Math.random());
     		counterbalence = Math.round(Math.random());
-    		if (negative == 0){
-                slideW['data'] = {value: value};
-                slideL['data'] = {value: value};
+            isPos = value >= 0;
+    		if (win == 0){
+
+                slideDL['data'] = {value: (isPos ? value : 0), feel_trial_type: "Dlose"};
+                slideL['data'] = {value: (isPos ? 0 : value), feel_trial_type: "lose"};
     			if (counterbalence == 0){
-    				return [slideW, slideL];
+    				return [Object.assign({}, slideDL), Object.assign({}, slideL)];
     			} else{
-    				return [slideL, slideW];
+    				return [Object.assign({}, slideL), Object.assign({}, slideDL)];
     			}
     		} else{
-                slideDW['data'] = {value: value};
-                slideDL['data'] = {value: value};
+                slideDW['data'] = {value: (isPos ? 0 : value), feel_trial_type: "Dwin"};
+                slideW['data'] = {value: (isPos ? value: 0), feel_trial_type: "win"};
     			if (counterbalence == 0 ){
-    				return [slideDW, slideDL];
+    				return [Object.assign({}, slideDW), Object.assign({}, slideW)];
     			} else{
-    				return [slideDL, slideDW];
+    				return [Object.assign({}, slideW), Object.assign({}, slideDW)];
     			}
     		}
     	}
 
         function createFeelExperienceSlide(value){
-            slideN['data'] = {value: value};
-            return slideN;
+            slideN['data'] = {value: value, feel_trial_type: "now"};
+            return Object.assign({}, slideN);
         }
 
         function createCircle(value, value2){
@@ -286,7 +288,7 @@
     	/*feeling expected task*/
 
         // init trial param
-    	var feel_value = [-12, 12, -10, 10, -8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
+    	var feel_value = [-12, 12, -10, 10, -8, 8, -6, 6, -4, 4,-2, 2, -1.2, 1.2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
 
     	feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
         feel_expect_value = feel_expect_value.concat(feel_expect_value);
@@ -309,7 +311,6 @@
 
     	for(var i = 1; i <= feel_trialNum; i+=1){
     		var value = feel_expect_value[i - 1];
-    		
     		var trial = {
 				type: "xab-image",
 				x_duration: 0,
@@ -322,7 +323,7 @@
     		feel_expect.push(createInfo(value));
     		feel_expect = feel_expect.concat(createFeelExpectSlide(value));
     		feel_expect.push(trial);
-    		feel_expect.push(getFeedback(value));
+    		feel_expect.push(getFeedback(value * Math.round(Math.random())));
 
     	}
 
@@ -350,8 +351,7 @@
     	feel_experience.push(instruction_block2);
 
     	for(var i = 1; i <= feel_trialNum; i+=1){
-
-       		value = feel_experience_value[i - 1];
+       		var value = feel_experience_value[i - 1];
 
     		var trial = {
 				type: "xab-image",
@@ -365,6 +365,7 @@
     		feel_experience.push(createInfo(value));
     		feel_experience.push(trial);
     		feel_experience.push(getFeedback(value));
+            value = value * Math.round(Math.random());
     		feel_experience.push(createFeelExperienceSlide(value));
     	}
 
@@ -508,9 +509,9 @@
     	jsPsych.init({
     		timeline: timeline,
     		on_finish: function(data){
-                opener.turk.submit(jsPsych.data.getData());
+                //opener.turk.submit(jsPsych.data.getData());
                 //saveData("pilot_data.csv", jsPsych.data.get().csv();
-                //jsPsych.data.get().localSave('csv', 'pilot.csv');
+                jsPsych.data.get().localSave('csv', 'pilot.csv');
     		}
     	});
 

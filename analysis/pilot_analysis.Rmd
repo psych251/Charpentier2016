@@ -9,14 +9,189 @@ output: html_document
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(splines) # used to make piecewises
+library(minpack.lm)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Pilot Analysis
+# Pilot Analysis
 
+## Import Data
 
 ```{r}
 d <- read.csv('../expt/pilot_data/pilot.csv')
+d$stimulus <- NULL
+
+# we are only interested in nodules with a feel_trial_type or a gamble_trial_type
+
+d <- d %>% 
+        filter(feel_trial_type != "" | gamble_trial_type != "") %>%
+        select(feel_trial_type, gamble_trial_type, value, response, win, lose, sure, gamble_side, key_press, gamble_side)
+
+d$id <- 1 ####### REPLACE THIS AFTER GET MORE PARTICIPANTS
+```
+
+## Preprocessing
+
+```{r}
+# evaluating whether participants gambled
+gamble = logical(0)
+for(i in 1:length(d$gamble_side)){
+        if(d$gamble_side[i] == ""){
+                gamble <- c(gamble, NA)
+        } else{
+                if(d$gamble_side[i] == "R" & d$key_press[i] == 80){
+                        gamble <- c(gamble, TRUE)
+                } else if(d$gamble_side[i] == "L" & d$key_press[i] == 81){
+                        gamble <- c(gamble, TRUE)
+                } else{
+                        gamble <- c(gamble, FALSE)
+                }
+        }
+}
+
+d$gamble <- gamble
+
+# transform 1-9 likert subjective response to -4 - 4 so that neutral is 0
+d$response <- d$response - 5
+
+# split the data into the blocks
+feel_expect <- d %>% 
+        filter(feel_trial_type != "now" & feel_trial_type != "") %>%
+        select(feel_trial_type, value, response, id)
+
+feel_experience <- d %>% 
+        filter(feel_trial_type == "now") %>%
+        select(feel_trial_type, value, response, id)
+
+gamble_block <- d %>% 
+        filter(gamble_trial_type != "") %>%
+        select(gamble_trial_type, win, lose, sure, gamble_side, key_press, id)
+
+```
+
+## Data Analysis
+
+### Feeling Functions
+
+```{r feeling models}
+nparticipant <- 1
+
+mod1 <- response ~ b * value
+mod2 <- response ~ ifelse(value > 0, bgain * value, bloss * value)
+mod3 <- response ~ ifelse(value > 0, b * abs(value) ^ p , -b * abs(value) ^ p)
+mod4 <- response ~ ifelse(value > 0, bgain * abs(value) ^ p, -bloss * abs(value) ^ p)
+mod5 <- response ~ ifelse(value > 0, b * abs(value) ^ pgain, -b * abs(value) ^ ploss)                            ## 5 has problems converging               
+mod6 <- response ~ ifelse(value > 0, bgain * abs(value) ^ pgain, -bloss * abs(value) ^ ploss)                    ## 6 has problems converging
+mod7 <- response ~ ifelse(value > 0, b * value + e, b * value - e)                                      
+mod8 <- response ~ ifelse(value > 0, bgain * value + e, bloss * value - e)                              
+mod9 <- response ~ ifelse(value > 0, b * value + egain, b * value - eloss)
+mod10 <- response ~ ifelse(value > 0, bgain * value + egain, bloss * value - eloss)
+
+## Here begins the worst code that I've ever written in my entire life
+
+feel_expect_mod1.fit <- list()
+feel_expect_mod2.fit <- list()
+feel_expect_mod3.fit <- list()
+feel_expect_mod4.fit <- list()
+feel_expect_mod5.fit <- list()
+feel_expect_mod6.fit <- list()
+feel_expect_mod7.fit <- list()
+feel_expect_mod8.fit <- list()
+feel_expect_mod9.fit <- list()
+feel_expect_mod10.fit <- list()
+
+feel_experience_mod1.fit <- list()
+feel_experience_mod2.fit <- list()
+feel_experience_mod3.fit <- list()
+feel_experience_mod4.fit <- list()
+feel_experience_mod5.fit <- list()
+feel_experience_mod6.fit <- list()
+feel_experience_mod7.fit <- list()
+feel_experience_mod8.fit <- list()
+feel_experience_mod9.fit <- list()
+feel_experience_mod10.fit <- list()
+
+for(i in 1:nparticipant){
+        temp_feel_expect <- feel_expect %>% filter(id == i)
+        temp_feel_experience <- feel_experience %>% filter(id == i)
+        
+        nls.control(warnOnly = TRUE)
+        
+        feel_expect_mod1.fit <- c(feel_expect_mod1.fit, 
+                                  list(nls(data = temp_feel_expect, mod1, start = c(b = .5),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod2.fit <- c(feel_expect_mod2.fit, 
+                                  list(nls(data = temp_feel_expect, mod2, start = c(bgain = .5, bloss = .5),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod3.fit <- c(feel_expect_mod3.fit, 
+                                  list(nls(data = temp_feel_expect, mod3, start = c(b = .5, p = .5),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod4.fit <- c(feel_expect_mod4.fit, 
+                                  list(nls(data = temp_feel_expect, mod4, start = c(bgain = .5, bloss = .5, p = .5),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod5.fit <- c(feel_expect_mod5.fit, 
+                                  list(nls(data = temp_feel_expect, mod5, start = c(b = .5, pgain = .5, ploss = .5),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod6.fit <- c(feel_expect_mod6.fit, 
+                                  list(nls(data = temp_feel_expect, mod6, start = c(bgain = .5, bloss = .5, pgain = .5, ploss = .5),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod7.fit <- c(feel_expect_mod7.fit, 
+                                  list(nls(data = temp_feel_expect, mod7, start = c(b = .5, e = .1),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod8.fit <- c(feel_expect_mod8.fit, 
+                                  list(nls(data = temp_feel_expect, mod8, start = c(bgain = .5, bloss = .5, e = .1),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod9.fit <- c(feel_expect_mod9.fit, 
+                                  list(nls(data = temp_feel_expect, mod9, start = c(b = 1, egain = .1, eloss = .1),
+                                           control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_expect_mod10.fit <- c(feel_expect_mod10.fit, 
+                                   list(nls(data = temp_feel_expect, mod10, start = c(bgain = 1, bloss = 1, egain = .1, eloss = .1),
+                                            control = list(maxiter = 50000, minFactor=1/2000))))
+      
+        
+        feel_experience_mod1.fit <- c(feel_experience_mod1.fit, 
+                                      list(nls(data = temp_feel_experience, mod1, start = c(b = 1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod2.fit <- c(feel_experience_mod2.fit, 
+                                      list(nls(data = temp_feel_experience, mod2, start = c(bgain = 1, bloss = 1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod3.fit <- c(feel_experience_mod3.fit, 
+                                      list(nls(data = temp_feel_experience, mod3, start = c(b = 1, p = 1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod4.fit <- c(feel_experience_mod4.fit, 
+                                      list(nls(data = temp_feel_experience, mod4, start = c(bgain = .5, bloss = .5, p = .5),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod5.fit <- c(feel_experience_mod5.fit, 
+                                      list(nls(data = temp_feel_experience, mod5, start = c(b = 1, pgain = 1, ploss = 1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod6.fit <- c(feel_experience_mod6.fit, 
+                                      list(nls(data = temp_feel_experience, mod6, start = c(bgain = 1, bloss = 1, pgain = 1, ploss = 1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod7.fit <- c(feel_experience_mod7.fit, 
+                                      list(nls(data = temp_feel_experience, mod7, start = c(b = 1, e = .1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod8.fit <- c(feel_experience_mod8.fit, 
+                                      list(nls(data = temp_feel_experience, mod8, start = c(bgain = 1, bloss = 1, e = .1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod9.fit <- c(feel_experience_mod9.fit, 
+                                      list(nls(data = temp_feel_experience, mod9, start = c(b = 1, egain = .1, eloss = .1),
+                                               control = list(maxiter = 50000, minFactor=1/2000))))
+        feel_experience_mod10.fit <- c(feel_experience_mod10.fit, 
+                                       list(nls(data = temp_feel_experience, mod10, start = c(bgain = 1, bloss = 1, egain = .1, eloss = .1),
+                                                control = list(maxiter = 50000, minFactor=1/2000))))
+}
+
+# use nls to fit models
+# use BIC on fitted models to return BIC
+```
+
+### Predicting Gambling Choice
+
+```{r gambling choice model}
+
+
+
 ```
 
