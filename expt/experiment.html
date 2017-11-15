@@ -26,12 +26,12 @@
     	/* param */
 
         // has to be multiple of 2
-    	var feel_trialNum = 20;
+    	var feel_trialNum = 2;
 
         // needs to be multiple of 3
         // otherwise it will round
         
-        var gamble_trialNum = 10;
+        var gamble_trialNum = 100;
 
     	/* helper trials and functions */
 
@@ -290,8 +290,8 @@
         // init trial param
     	var feel_value = [-12, 12, -10, 10, -8, 8, -6, 6, -4, 4,-2, 2, -1.2, 1.2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
 
-    	feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
-        feel_expect_value = feel_expect_value.concat(feel_expect_value);
+        feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2)
+        feel_expect_value = feel_value.concat(feel_value);
         feel_expect_value = jsPsych.randomization.shuffle(feel_expect_value);
 
 
@@ -330,9 +330,12 @@
     	/*feel experience */
 
         // init trial param
-    	feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
+        feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2)
         feel_experience_value = feel_experience_value.concat(feel_experience_value);
         feel_experience_value = jsPsych.randomization.shuffle(feel_experience_value);
+
+        feel_experience_value_zeros = Array(feel_trialNum / 2).fill(0).concat(Array(feel_trialNum / 2).fill(1));
+        feel_experience_value_zeros = jsPsych.randomization.shuffle(feel_experience_value_zeros)
 
     	var feel_experience_img = new Array(feel_trialNum * 2);
     	for(var i = 1; i <= feel_trialNum * 2; i += 1){
@@ -352,6 +355,7 @@
 
     	for(var i = 1; i <= feel_trialNum; i+=1){
        		var value = feel_experience_value[i - 1];
+            var zero = feel_experience_value_zeros[i - 1];
 
     		var trial = {
 				type: "xab-image",
@@ -364,9 +368,8 @@
     		feel_experience.push(fixate);
     		feel_experience.push(createInfo(value));
     		feel_experience.push(trial);
-    		feel_experience.push(getFeedback(value));
-            value = value * Math.round(Math.random());
-    		feel_experience.push(createFeelExperienceSlide(value));
+    		feel_experience.push(getFeedback(value * zero));
+    		feel_experience.push(createFeelExperienceSlide(value * zero));
     	}
 
         /*gambling task */
@@ -407,7 +410,7 @@
 
         var high_low_thresh = 6;
 
-        var gamble_value = [-12, 12, -10, 10, -8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
+        var gamble_value = [-12, 12, -10, 10, -8, 8, -6, 6, -4, 4,-2, 2, -1.2, 1.2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
         var gamble_high_value = [];
         var gamble_low_value = [];
 

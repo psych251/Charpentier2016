@@ -21,15 +21,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 d <- read.csv('../expt/pilot_data/pilot.csv')
-d$stimulus <- NULL
 
 # we are only interested in nodules with a feel_trial_type or a gamble_trial_type
 
 d <- d %>% 
         filter(feel_trial_type != "" | gamble_trial_type != "") %>%
-        select(feel_trial_type, gamble_trial_type, value, response, win, lose, sure, gamble_side, key_press, gamble_side)
+        select(feel_trial_type, gamble_trial_type, value, response, win, lose, sure, gamble_side, key_press)
 
+d$response <- d$response - 5
 d$id <- 1 ####### REPLACE THIS AFTER GET MORE PARTICIPANTS
+
+d <- read.csv('../expt/pilot_data/gamble.csv')
+
 ```
 
 ## Preprocessing
@@ -67,7 +70,7 @@ feel_experience <- d %>%
 
 gamble_block <- d %>% 
         filter(gamble_trial_type != "") %>%
-        select(gamble_trial_type, win, lose, sure, gamble_side, key_press, id)
+        select(gamble_trial_type, win, lose, sure, gamble, id)
 
 ```
 
@@ -191,7 +194,30 @@ for(i in 1:nparticipant){
 
 ```{r gambling choice model}
 
+gamble_expect_model.fit <- list()
+gamble_experience_model.fit <- list()
+gamble_value_model.fit <- list()
+gamble_log_value_model.fit <- list()
 
+# returns a list or predicted values; win == 1, lost == 2, sure == 3
+transform_predict <- function(win, lose, sure, model){
+        twin <- predict(model, data.frame(value = win))
+        tlose <- predict(model, data.frame(value = lose))
+        tsure <- predict(model, data.frame(value = sure))
+        return(list(twin, tlose, tsure))
+}
+
+gamble_log_fit <- function(d, model){
+        params <- transform_predict(d$win, d$lose, d$sure, model)
+        return(glm(d$gamble ~ params[[1]] + params[[2]] + params[[3]] + 0, family = binomial(link = "logit")))
+}
+
+for(i in 1:nparticipant){
+        gamble_expect_model.fit <- c(gamble_expect_model.fit, gamble_log_fit(gamble_block, feel_expect_mod3.fit[[i]]))
+        gamble_experience_model.fit <- c(gamble_experience_model.fit, gamble_log_fit(gamble_block, feel_expect_mod3.fit[[i]]))
+        gamble_value_model.fit <- c(gamble_value_model.fit, glm(data = gamble_block %>% filter(id == i), gamble ~ 0 + win + lose + sure, family = binomial))
+        gamble_log_value_model.fit <- c(gamble_log_value_model.fit, glm(data = gamble_block %>% filter(id == i), gamble ~ 0 + log(win) + log(lose) + log(sure), family = binomial))
+}
 
 ```
 
