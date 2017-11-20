@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Example</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="mmturkey.js"></script>   
+        <link href = "jsPsych-5.0.3/css/jspsych.css" rel="stylesheet" type = "text/css"></link>     
+    </head> 
+    <body>
+    <div id = intro_page ></div>
+    </body>
+    
+    <script>
+    
+    suitable_browser = navigator.userAgent.indexOf("Chrome") == -1 && navigator.userAgent.indexOf("Firefox") == -1
+    turk.previewMode = (turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE")
+    
+    var welcome_instructions = 
+        '<div id="instructions"><div style="width: 500px; margin: 0 auto; text-align: ' +
+        'center; background-color: #8C1516; padding: 20px 15px 10px 10px">' +
+        '<img src="img/stanford.png" height="46" width="360" alt="Stanford University"></div>' +
+        '<p class="block-text">Welcome to the experiment! In this experiment you will.... ' +
+        'perform two different behavioral tasks. Together, they should take 30 minutes. ' +
+        '<p class="block-text">' + 
+        '<strong> You must use either Firefox or Chrome. </strong></p> ' +
+        '<p class="block-text">When you begin, a new window will open where you complete the tasks. ' +
+        'If you are ready, press the <strong>"Enter"</strong> key.  </p>' +
+        '<p class="block-text legal">Legal information: By answering the ' +
+        'following questions, you are participating in a study being performed by ' +
+        'cognitive scientists in the Stanford Department of Psychology. If you have ' +
+        'questions about this research, please contact Ian Eisenberg at <a' +
+        'href="mailto://ieisenbe@stanford.edu">ieisenbe@stanford.edu</a>. ' +
+        'You must be  at least 18 years old to participate. Your participation in this ' +
+        'research is voluntary. You may decline further participation, at any time, ' +
+        'without adverse consequences. Your anonymity is assured; the researchers who ' +
+        'have requested your participation will not receive any personal information about you.</p></div>'
+
+    document.getElementById("intro_page").innerHTML = welcome_instructions
+    
+    window.onkeypress = function(event) {
+     if (event.keyCode == 13 && !turk.previewMode && !suitable_browser) {
+      window.open('experiment.html')
+        }
+    }
+        
+    
+    </script>
+</html>

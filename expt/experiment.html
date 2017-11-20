@@ -26,12 +26,12 @@
     	/* param */
 
         // has to be multiple of 2
-    	var feel_trialNum = 2;
+    	var feel_trialNum = 48;
 
         // needs to be multiple of 3
         // otherwise it will round
         
-        var gamble_trialNum = 100;
+        var gamble_trialNum = 288;
 
     	/* helper trials and functions */
 
@@ -291,7 +291,7 @@
     	var feel_value = [-12, 12, -10, 10, -8, 8, -6, 6, -4, 4,-2, 2, -1.2, 1.2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
 
         feel_expect_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2)
-        feel_expect_value = feel_value.concat(feel_value);
+        feel_expect_value = feel_expect_value.concat(feel_expect_value);
         feel_expect_value = jsPsych.randomization.shuffle(feel_expect_value);
 
 
@@ -514,7 +514,7 @@
     		on_finish: function(data){
                 //opener.turk.submit(jsPsych.data.getData());
                 //saveData("pilot_data.csv", jsPsych.data.get().csv();
-                jsPsych.data.get().localSave('csv', 'pilot.csv');
+                jsPsych.data.get().localSave('json', 'pilot.json');
     		}
     	});
 

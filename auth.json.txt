@@ -1,0 +1,4 @@
+{
+	"access_id": "AKIAI3YHT7V2IXANLUAQ",
+	"secret_key": "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"
+}
