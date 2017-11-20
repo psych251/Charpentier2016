@@ -30,7 +30,7 @@ packrat/src*/
 *.DS_Store
 
 # MTurk credentials and data
-auth.json
+auth.json.txt
 my-own-auth.json
 mturk/
 
