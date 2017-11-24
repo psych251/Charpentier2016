@@ -12,6 +12,7 @@
         <script src="jsPsych/plugins/jspsych-image-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-xab-html.js"></script>
+        <script src="jsPsych/plugins/jspsych-survey-text.js"></script>
         <script src="mmturkey.js"></script>
         <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
         <style>
@@ -31,13 +32,15 @@
         // needs to be multiple of 3
         // otherwise it will round
         
-        var gamble_trialNum = 288;
+        var gamble_trialNum = 2;
 
-    	/* helper trials and functions */
+    	/* HELPER VARIABLES AND FUNCTIONS */
 
+        // prompts that I will use later
         var slider_prompt = "Press Q to move left, P to move right. \n Spacebar to confirm your choice.";
         var select_choice_prompt = "<p>Press Q to choose left, P to choose right.</p>"
 
+        // slides that I will use later
     	var fixate = {
     		type: "image-keyboard-response",
     		stimulus: "img/cross.jpg",
@@ -95,6 +98,7 @@
             data: {}
 	   	}
 
+        //used to create information before every feeling trial
     	function createInfo(value){
     		if (value > 0){
     			var info = {
@@ -115,6 +119,7 @@
     		}
     	}
 
+        //used to create feedback information of the trial outcome (gain 2, lose -10 etc)
     	function getFeedback(value){
     		if (value == 0){
     			var feedback = {
@@ -146,6 +151,7 @@
     		}
     	}
 
+        // creates feel expect slider
     	function createFeelExpectSlide(value){
     		win = Math.round(Math.random());
     		counterbalence = Math.round(Math.random());
@@ -170,11 +176,13 @@
     		}
     	}
 
+        // creates feel experienced slider
         function createFeelExperienceSlide(value){
             slideN['data'] = {value: value, feel_trial_type: "now"};
             return Object.assign({}, slideN);
         }
 
+        // displays two gamble choice, 1 sure option and 1 risky 50-50
         function createCircle(value, value2){
             var canvas = document.createElement('canvas');
 
@@ -249,8 +257,7 @@
               return "<img src=\"" + dataURL + "\">";
             }
           }
-
-
+        /* END OF HELPER VARS AND FUNCTIONS */
 
     	/*style it they way I want it*/
     	$(document.body).css("background-color", "black");
@@ -280,12 +287,12 @@
     		type: "instructions",
     		pages: ["<p>You will now be asked to complete the same task.</p>" +
                     "<p>This time, you will be asked how you feel after you choose the shapes, not before.</p>",
-    				"<p>Press \'Next\' when you are ready to start the task.</p>"],
+    				"<p>Press \"Next\" when you are ready to start the task.</p>"],
     		show_clickable_nav: true,
     		allow_backward: false
     	}
 
-    	/*feeling expected task*/
+    	/*FEELING EXPECTED BLOCK*/
 
         // init trial param
     	var feel_value = [-12, 12, -10, 10, -8, 8, -6, 6, -4, 4,-2, 2, -1.2, 1.2, -1, 1, -.8, .8, -.6, .6, -.4, .4, -.2, .2];
@@ -327,15 +334,14 @@
 
     	}
 
-    	/*feel experience */
+    	/*FEEL EXPERIENCE BLOCK*/
 
         // init trial param
-        feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2)
-        feel_experience_value = feel_experience_value.concat(feel_experience_value);
+        feel_experience_value = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
+        feel_experience_value = feel_experience_value.concat(new Array((feel_trialNum / 2)+1).join('0').split('').map(parseFloat));
         feel_experience_value = jsPsych.randomization.shuffle(feel_experience_value);
 
-        feel_experience_value_zeros = Array(feel_trialNum / 2).fill(0).concat(Array(feel_trialNum / 2).fill(1));
-        feel_experience_value_zeros = jsPsych.randomization.shuffle(feel_experience_value_zeros)
+        feel_experience_value_zerofill = jsPsych.randomization.sampleWithoutReplacement(feel_value, feel_trialNum / 2);
 
     	var feel_experience_img = new Array(feel_trialNum * 2);
     	for(var i = 1; i <= feel_trialNum * 2; i += 1){
@@ -355,7 +361,6 @@
 
     	for(var i = 1; i <= feel_trialNum; i+=1){
        		var value = feel_experience_value[i - 1];
-            var zero = feel_experience_value_zeros[i - 1];
 
     		var trial = {
 				type: "xab-image",
@@ -366,19 +371,22 @@
 			}
 
     		feel_experience.push(fixate);
-    		feel_experience.push(createInfo(value));
+            if(value != 0){
+    		  feel_experience.push(createInfo(value));
+            } else{
+                feel_experience.push(createInfo(feel_experience_value_zerofill.shift()))
+            }
     		feel_experience.push(trial);
-    		feel_experience.push(getFeedback(value * zero));
-    		feel_experience.push(createFeelExperienceSlide(value * zero));
+    		feel_experience.push(getFeedback(value));
+    		feel_experience.push(createFeelExperienceSlide(value));
     	}
 
-        /*gambling task */
+        /*GAMBLING BLOCK*/
 
         // init instructions
         var instruction_block3 = {
             type: "instructions",
-            pages: ["<p>Now you will see a series of monetary choices. One of the choice will be a sure option, and the other will be a 50/50 chance option.</p>" +
-                    "<p>The results of one randomly selected trial will be added to your payment.</p>",
+            pages: ["<p>Now you will see a series of monetary choices. One of the choice will be a sure option, and the other will be a 50/50 chance option.</p>",
                     "<p>Please use Q to select the left option, and P to select the right option.</p>",
                     "<p>Press \"Next\" when you are ready to start the task."],
             show_clickable_nav: true,
@@ -488,26 +496,33 @@
             }
         };
 
-    	/*init timeline*/
+
+        /*Any Problem open response*/
+
+        var problems = {
+            type: 'survey-text',
+            questions: [{prompt: "You have finished the last portion of the survey. In completing the entire survey," + 
+                                " did you run into any problems? If so, briefly describe your problem below.",
+                         rows: 7, columns: 100}]
+        }
+
+        /*Debrief block*/
+
+        var debrief_block = {
+            type: 'html-keyboard-response',
+            stimulus: "<p>Thank you for completing the experiment. Press any key to complete the " +
+                        "experiment."
+        }
+
+    	/*create experiment timeline*/
+
     	var  timeline = [];
     	timeline.push(instruction_block);
     	timeline = timeline.concat(feel_expect);
     	timeline = timeline.concat(feel_experience);
         timeline = timeline.concat(gamble);
-
-    	/*init expt and save data*/
-
-        /*
-        function saveData(filename, filedata){
-            $.ajax({
-                type:'post',
-                cache: false,
-                url: 'save_data.php', // this is the path to the above PHP script
-                data: {filename: filename, filedata: filedata}
-                });
-
-            }
-        */
+        timeline.push(problems);
+        timeline.push(debrief_block);
 
     	jsPsych.init({
     		timeline: timeline,
