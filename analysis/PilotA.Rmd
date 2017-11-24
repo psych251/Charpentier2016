@@ -14,14 +14,16 @@ output:
 
 ##Introduction
 
-[No abstract is needed.]  Each replication project will have a straightforward, no frills report of the study and results.  These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of data collection.  Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for replication, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.  
+Prospect theory (Kahneman & Tversky, 1979; Tversky & Kahneman, 1986, 1992) stipulates that people make choices based on subjective values of the choices, and not from the objective values of the choice. In other words, in a gambling task, when presented with a sure option \$5 or a risky 50-50 option of either gaining \$10 or gaining \$0, prospect theory expects people to make their decisions based on how much they value \$5 dollars, relative to how much they value \$10. But is the subjective value in prospect theory a proxy of feeling?
+
+Charpentier (2016) investigates this question by utilizing computational models. The authors are interested in whether a model based on feeling will be able to predict choices in a monetary gambling task better than a model based on objective values. The authors asked participants to rate how negatively or positively they would feel or expect to feel if they won or lost an object value. Those self-reported feelings where used to create a feeling function which relates objective values to a subjective feelings (expected or experienced). On a seperate task, the authors asked participants to choose between a sure option and a risky 50-50 option in a monetary gambling task. Feeling based choice model used the constructed feeling function to predict feelings associated with each objective value, and then used those predicted feelings to predict choice. Value based choice model only used objective value to predict choice. 
 
 
 ##Methods
 
 ###Power Analysis
 
-Charpentier used a paired t test to compare the weights of losing coeficients to weights of wining coeficients. This test was to see of one was significantly larger than the other in the choice models.
+As part of their supplementary analysis, Charpentier used a paired t test to compare the weights of losing coeficients to weights of wining coeficients. This test was to see of one was significantly larger than the other in the choice models.
 
 Original paper reports
 
@@ -29,18 +31,23 @@ Original paper reports
 of 59 participants would achieve 85% power to detect an
 effect size of 0.401 with an alpha of .05."
 
-Using the effect size found in the original paper (d = 0.392) with an alpha of .05, 53 participants will achieve 80% power.
-
+Using the effect size found in the original paper (d = 0.392) with an alpha of .05, 53 participants will achieve 80% power. Power calculations were run in G*Power v3.1.
 
 ###Planned Sample
 
-For the sake of feasibility in collecting data. I plan to use 30 participants with a shorter version of their experiment. Although this significanlty reduces the sample of the experiment, their main analysis does not rely on comparing the weights of losing and wining to each other, but rather, the predictive power of the models itself, which don't depend on sample size as much as t tests do.
+For the sake of feasibility in collecting data. I plan to use 30 participants with a shorter version of their experiment. Although this significantly reduces the sample of the experiment, their main analysis does not rely on comparing the weights of losing and wining to each other, but rather, the predictive power of the models itself, which don't depend on sample size as much as t tests do. There is no specific recruitment constraints in demographics since the original paper did not specify any.
 
 ###Materials
 
-Basic geometric shapes were used for each stimulus in a trial. Each trial had a different geometric shape to ensure that associations of monetary outcomes and the shapes did not carry throughout trials.
+Basic geometric shapes were used for each stimulus in a trial. Each trial had a different geometric shape to ensure that associations of mo netary outcomes and the shapes did not carry throughout trials.
+
+INCLUDE PICTURE HERE
+
+JsPsych was used to create the experimental paradigm. Shapes were created from basic presentation software using basic shape functions and color palletes, and saved as an image.
 
 ###Procedure	
+
+Directly quoted from the original paper, the two main tasks were as follows:
 
 **Feeling Task**
 
@@ -115,18 +122,17 @@ Short Experiment Version: [https://web.stanford.edu/~mlko53/expt/experiment_shor
 
 ###Analysis Plan
 
+Only exclusion criteria is removing participant data who show no variation in response.
+
 **Feeling Function Models**
 
-Model subjective feelings from three different baselines: difference from the midpoint
-of the rating scale, difference from the rating
-reported on the previous trial (for experienced feelings
-only), and difference from the corresponding zero outcome.
+Model subjective feelings from three different baselines: difference from the midpoint of the rating scale, difference from the rating reported on the previous trial (for experienced feelings only), and difference from the corresponding zero outcome.
 
-10 different models were fit for each feeling block, expected and experienced. Each model was fit to every participants. Best model in each feeling block was determiend by using summed BIC as model selection criterion and 100 split half analysis. 
+10 different models were fit for each feeling block, expected and experienced. Each model was fit to every participants (See Charpentier2016, p.4 for model formula). Best model in each feeling block was determiend by using summed BIC as model selection criterion and 100 split half analysis. 
 
 **Gambling Choice Models**
 
-Each choice model used logistic regression on three predictors, a win value, loss value and sure value. Every choice model has a different transformations from the objective monetary values. Some of these objective to subjective value transformations were models from the best feeling function models. 7 different choice models were fitted for every participant. Best model was deteremined by using BIC as model selection criterion and 100 split half analysis. 
+Each choice model used logistic regression on three predictors, a win value, loss value and sure value, to predict gambling choice (coded "1" for selecting the risky 50-50, or "0" for selecting the sure option). 7 different choice models were fitted for every participant. Choice model 1 and 2 are feeling models using the best fitting feeling function to transform objective values to subjective values. Choice model 3 - 7 are value based models using either raw objective values or a transformation of the raw objective value such as logarithm (See Charpentier2016, p.5 and Supplementary Material, p.3 for model formula). Best model was deteremined by using BIC as model selection criterion and 100 split half analysis. 
 
 Weights associated with win and weights associated with loss are compared. From their key choice model of interest, these weights are extracted, standardized and then compared using paired sample t test and repeated measures ANOVA.
 
@@ -135,20 +141,21 @@ Weights associated with win and weights associated with loss are compared. From 
 Key analysis tests whether feeling based choice models (Choice Model 1, 2) predict better than value based choice models (Choice Model 3 - 7).
 
 
-
 ###Differences from Original Study
 
 I'm using a smaller sample size in order to fit the contraints of the class budget. Furthermore, I'm using less trials in each feeling block. Instead of 2 blocks of 48 trials for each expected and experienced blocks, I'm only using 1 block of 48 trials. Gambling trial length remains the same.
 
+The authors used Maximum Likehood Estimation algorithm from MATLAB to fit their models. I will use Nonlinear Solver (nls() function) in R using Gauss-Newton algorithm.
+
 ### Methods Addendum (Post Data Collection)
 
-Although accuracy is typically not a criteria for model selection, I think graphing and displaying the mean accuracy of each model is nice so that readers would have a intuitive idea of the predictive power of each model.
+I think graphing and displaying the mean accuracy of each model is nice so that readers would have a intuitive idea of the predictive power of each model.
 
 #### Actual Sample
-  Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+TO FILL OUT AFTER DATA COLLECTION
 
 #### Differences from pre-data collection methods plan
-None
+TO FILL OUT AFTER DATA COLLECTION
 
 
 ##Results
@@ -156,7 +163,7 @@ None
 
 ### Data preparation
 
-Data preparation following the analysis plan.
+Data from 
 	
 ```{r}
 ###Data Preparation
@@ -172,7 +179,7 @@ library(jsonlite)
 
 #init params of experiment
 nparticipants <- 2
-n.iter <- 10 #NUMBER OF BOOTSTRAPS;  CHANGE THIS TO 100 LATER
+n.iter <- 10
 
 #read pilot1 data
 d <- fromJSON('../expt/pilot_data/pilot1.json')
@@ -235,6 +242,8 @@ gamble_block$gamble <- gamble
 
 **Helper Functions**
 
+These functions help me calculate BIC with split-half bootstrap analysis.
+
 ```{r helper_fucntions}
 
 # splits dataframe in half randomly
@@ -266,24 +275,6 @@ feel_BIC <- function(num){
         return(vector)
 }
 
-# log transformation function for choice model 4
-log0 <- function(x){
-        
-        if(length(x) == 1){
-        
-                if(x == 0){
-                        ans = 0
-                } else if(x < 0){
-                        ans = -log1p(-x)
-                } else{
-                        ans = log1p(x)
-                }
-                return(ans)
-        } else{
-                return(sapply(x, FUN = log0))
-        }
-}
-
 #value transformation function; returns a list or predicted values; win == 1, lost == 2, sure == 3
 transform_predict <- function(win, lose, sure, model){
         twin <- predict(model, data.frame(value = win))
@@ -307,7 +298,12 @@ choice_BIC <- function(num){
         for(i in 1:num){
                 for(j in 1:7){
                         model <- paste0(paste0(paste0(model_names[j], "[["), i), "]]")
-                        vector[j] <- vector[j] + BIC(eval(parse(text = model)))
+                        model <- eval(parse(text = model))
+                        if(is.na(model)){
+                                vector[j] <- NA #### If there was an error when fitting, assign NA to indicate that the model was not good
+                        } else{
+                                vector[j] <- vector[j] + BIC(model)       
+                        }
                 }
         }
         return(vector)
@@ -315,6 +311,8 @@ choice_BIC <- function(num){
 ```
 
 **Feeling Helper Functions**
+
+These functions are the model formulas of the feeling functions.
 
 ```{r feeling_helper_functions}
 
@@ -471,7 +469,27 @@ feel_fit <- function(split = TRUE, num){
 
 **Choice Helper Functions**
 
+These functions are the model formulas of the gambling choice models.
+
 ```{r choice_helper_functions}
+
+# log transformation function for choice model 4
+log0 <- function(x){
+        
+        if(length(x) == 1){
+        
+                if(x == 0){
+                        ans = 0
+                } else if(x < 0){
+                        ans = -log1p(-x)
+                } else{
+                        ans = log1p(x)
+                }
+                return(ans)
+        } else{
+                return(sapply(x, FUN = log0))
+        }
+}
 
 # function that fits all the choice functions
 choice_fit <- function(split = TRUE, num){
@@ -494,15 +512,18 @@ choice_fit <- function(split = TRUE, num){
                 choice_mod2.fit <- c(choice_mod2.fit, list(gamble_log_fit(gamble_block, feel_experience_mod3.fit[[i]])))
                 choice_mod3.fit <- c(choice_mod3.fit, list(glm(data = temp_gamble_block, gamble ~ 0 + win + lose + sure, family = binomial)))
                 choice_mod4.fit <- c(choice_mod4.fit, list(glm(data = temp_gamble_block, gamble ~ 0 + log0(win) + log0(lose) + log0(sure), family = binomial)))
-                choice_mod5.fit <- c(choice_mod5.fit, list(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * win + 0.5 * lamda * lose))), 
+                choice_mod5.fit <- c(choice_mod5.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * win + 0.5 * lamda * lose))), 
                                                                start = c(u = 1, lamda = 1),
-                                                               control = list(maxiter = 50000, minFactor=1/2000))))
-                choice_mod6.fit <- c(choice_mod6.fit, list(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * (abs(win) ^ gamma) + 0.5 * (abs(lose) ^ gamma)))),
+                                                               control = list(maxiter = 50000, minFactor=1/2000)),
+                                                               error = function(err) NA)))
+                choice_mod6.fit <- c(choice_mod6.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * (abs(win) ^ gamma) + 0.5 * (abs(lose) ^ gamma)))),
                                                                start = c(u = 1, gamma = 1),
-                                                               control = list(maxiter = 50000, minFactor=1/2000))))
-                choice_mod7.fit <- c(choice_mod7.fit, list(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * (abs(win) ^ gamma) + 0.5 * lamda * (abs(lose) ^ gamma)))),
+                                                               control = list(maxiter = 50000, minFactor=1/2000)),
+                                                               error = function(err) NA)))
+                choice_mod7.fit <- c(choice_mod7.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * (abs(win) ^ gamma) + 0.5 * lamda * (abs(lose) ^ gamma)))),
                                                                start = c(u = 1, gamma = 1, lamda = 1),
-                                                               control = list(maxiter = 50000, minFactor=1/2000))))
+                                                               control = list(maxiter = 50000, minFactor=1/2000)),
+                                                               error = function(err) NA)))
                 
         }
         
@@ -567,7 +588,29 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 
 ### Confirmatory analysis
 
+**Data Visualization**
+
+The below graph shows the average reported expected and experienced feeling with each objective value. Standard error bars are shown.
+
+```{r}
+feel_expect_sum <- summarySE(feel_expect, measurevar = "response", groupvars = c("value"))
+feel_expect_sum$type <- "Expected Feelings"
+feel_experience_sum <- summarySE(feel_experience, measurevar = "response", groupvars = c("value"))
+feel_experience_sum$type <- "Experienced Feelings"
+
+feel_data_sum <- rbind(feel_expect_sum, feel_experience_sum)
+
+ggplot(data = feel_data_sum,
+                        aes(x = value, y = response, col = type)) +
+        geom_errorbar(aes(ymin=response-se, ymax=response+se), colour="black", width=.1, position=position_dodge(0.1)) +
+        geom_point(position=position_dodge(0.1), size=3, shape=21, fill="white") +
+        ggtitle("Feeling Function")
+        
+```
+
 **Comparing Feeling Models**
+
+First we fit Feeling Models 1 - 10 for both expected and experienced feelings, and select the best model with the lowest sum across all participants BIC. Same fitting procedure is repeated with 100 iterations for split half boostrap analysis. 
 
 ```{r fitting_feeling_model}
 
@@ -592,7 +635,12 @@ for(i in 1:n.iter){
         feeling_models[i, ] <- feel_BIC(nparticipants) # stores summed BIC ofevery model of each iteration 
 }
 
+## compute the lowest BIC for each bootstrap iteration
+feeling_expect_models <- feeling_models[, 1:10]
+feeling_experience_models <- feeling_models[, 11:20]
 
+feeling_expect_models <- table(colnames(feeling_expect_models)[apply(feeling_expect_models,1,which.min)])
+feeling_experience_models <- table(colnames(feeling_experience_models)[apply(feeling_experience_models,1,which.min)])
 
 ## no boostrapping
 feeling_models_nosplit <- data.frame(matrix(ncol = 20, nrow = 1))
@@ -649,13 +697,11 @@ ggplot(feeling_models %>%
 
 **Choice Models**
 
-Original:
-
-![Choice Models](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/choice_model.jpg)
+Next, we fit Choice Model 1-7, and select the best model with the lowest sum across all participants BIC. Same fitting procedure is repeated with 100 iterations for split half boostrap analysis. 
 
 Key analysis: BIC of Model 1,2 > BIC of Model 3-7
 
-```{r fitting_choice_model}
+```{r warning=FALSE}
 
 #init choice model array
 choice_models <- data.frame(matrix(ncol = 7, nrow = n.iter))
@@ -671,21 +717,23 @@ colnames(choice_models) <- model_names
 #start fitting
 feel_fit(split = FALSE, num = nparticipants) # fit feel model with all the data
 
-########STILL IN THE PROCESS OF FIGURING CHOICE MODELS OUT ############
+for(i in 1:n.iter){
+        
+        choice_fit(split = TRUE, nparticipants) # fit choice models split half
+        choice_models[i, ] <- choice_BIC(nparticipants)
+}
 
-##PROBLEM: Model 5, 6, and 7 is highly unstable. R is having trouble converging. It might be the way that I'm writing the formulas. Worse comes to case, I exclude these models from the analysis. This isnt' a bad idea since if these models aren't converging in the first place, they shouldn't be good models.
-
-#for(i in 1:n.iter){
-#        
-#        choice_fit(split = FALSE, nparticipants) # fit choice models split half
-#        choice_models[i, ] <- choice_BIC(nparticipants)
-#}
+choice_models <- table(colnames(choice_models)[apply(choice_models,1,which.min)])
 
 ```
 
+Original:
+
+![Choice Models](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/choice_model.jpg)
+
 ###Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+FILL IN LATER 
 
 ## Discussion
 
