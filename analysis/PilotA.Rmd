@@ -23,9 +23,9 @@ Charpentier (2016) investigates this question by utilizing computational models.
 
 ###Power Analysis
 
-As part of their supplementary analysis, Charpentier used a paired t test to compare the weights of losing coeficients to weights of wining coeficients. This test was to see of one was significantly larger than the other in the choice models.
+As part of their supplementary analysis, Charpentier used a paired t-test to compare the weights of losing coeficients to weights of wining coeficients. This test was to see of one was significantly larger than the other in the choice models.
 
-Original paper reports
+Original paper reports:
 
 > "We determined that a sample size
 of 59 participants would achieve 85% power to detect an
@@ -35,13 +35,15 @@ Using the effect size found in the original paper (d = 0.392) with an alpha of .
 
 ###Planned Sample
 
-For the sake of feasibility in collecting data. I plan to use 30 participants with a shorter version of their experiment. Although this significantly reduces the sample of the experiment, their main analysis does not rely on comparing the weights of losing and wining to each other, but rather, the predictive power of the models itself, which don't depend on sample size as much as t tests do. There is no specific recruitment constraints in demographics since the original paper did not specify any.
+For the sake of feasibility in collecting data. I plan to use 30 participants with a shorter version of their experiment. Although this significantly reduces the sample of the experiment, their main analysis is not the comparison of the weights of losing and wining to each other, but rather, the predictive power of the models itself, which don't depend on sample size as much as t-tests do. So, although power was not achieved for the test for weight comparison, it is still possible to evaluate how good fitted models are with only 30 participants.
+
+There is no specific recruitment constraints in demographics since the original paper did not specify any.
 
 ###Materials
 
 Basic geometric shapes were used for each stimulus in a trial. Each trial had a different geometric shape to ensure that associations of mo netary outcomes and the shapes did not carry throughout trials.
 
-INCLUDE PICTURE HERE
+![Shapes](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/shapes.jpg)
 
 JsPsych was used to create the experimental paradigm. Shapes were created from basic presentation software using basic shape functions and color palletes, and saved as an image.
 
@@ -385,11 +387,13 @@ feel_fit <- function(split = TRUE, num){
                                           list(nls(data = temp_feel_expect, mod4, start = c(bgain = .5, bloss = .5, p = .5),
                                                    control = list(maxiter = 50000, minFactor=1/2000))))
                 feel_expect_mod5.fit <- c(feel_expect_mod5.fit, 
-                                          list(nls(data = temp_feel_expect, mod5, start = c(b = .5, pgain = .5, ploss = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
+                                          list(tryCatch(nls(data = temp_feel_expect, mod5, start = c(b = .5, pgain = .5, ploss = .5),
+                                                   control = list(maxiter = 50000, minFactor=1/2000)),
+                                                   error = function(err) NA)))
                 feel_expect_mod6.fit <- c(feel_expect_mod6.fit, 
-                                          list(nls(data = temp_feel_expect, mod6, start = c(bgain = .5, bloss = .5, pgain = .5, ploss = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
+                                          list(tryCatch(nls(data = temp_feel_expect, mod6, start = c(bgain = .5, bloss = .5, pgain = .5, ploss = .5),
+                                                   control = list(maxiter = 50000, minFactor=1/2000)),
+                                                   error = function(err) NA)))
                 feel_expect_mod7.fit <- c(feel_expect_mod7.fit, 
                                           list(nls(data = temp_feel_expect, mod7, start = c(b = .5, e = .1),
                                                    control = list(maxiter = 50000, minFactor=1/2000))))
@@ -417,11 +421,13 @@ feel_fit <- function(split = TRUE, num){
                                               list(nls(data = temp_feel_experience, mod4, start = c(bgain = .5, bloss = .5, p = .5),
                                                        control = list(maxiter = 50000, minFactor=1/2000))))
                 feel_experience_mod5.fit <- c(feel_experience_mod5.fit, 
-                                              list(nls(data = temp_feel_experience, mod5, start = c(b = 1, pgain = 1, ploss = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
+                                              list(tryCatch(nls(data = temp_feel_experience, mod5, start = c(b = 1, pgain = 1, ploss = 1),
+                                                       control = list(maxiter = 50000, minFactor=1/2000)),
+                                                       error = function(err) NA)))
                 feel_experience_mod6.fit <- c(feel_experience_mod6.fit, 
-                                              list(nls(data = temp_feel_experience, mod6, start = c(bgain = 1, bloss = 1, pgain = 1, ploss = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
+                                              list(tryCatch(nls(data = temp_feel_experience, mod6, start = c(bgain = 1, bloss = 1, pgain = 1, ploss = 1),
+                                                       control = list(maxiter = 50000, minFactor=1/2000)),
+                                                       error = function(err) NA)))
                 feel_experience_mod7.fit <- c(feel_experience_mod7.fit, 
                                               list(nls(data = temp_feel_experience, mod7, start = c(b = 1, e = .1),
                                                        control = list(maxiter = 50000, minFactor=1/2000))))
@@ -709,7 +715,7 @@ choice_models <- data.frame(matrix(ncol = 7, nrow = n.iter))
 model_names <- character(7)
 
 for(i in 1:7){
-        model_names[i] <- paste0(paste0("choice_mod", i), ".fit")
+        model_names[i] <- paste0("choice_mod", i)
 }
 
 colnames(choice_models) <- model_names
@@ -723,13 +729,33 @@ for(i in 1:n.iter){
         choice_models[i, ] <- choice_BIC(nparticipants)
 }
 
-choice_models <- table(colnames(choice_models)[apply(choice_models,1,which.min)])
+choice_models_table <- table(colnames(choice_models)[apply(choice_models,1,which.min)])
+
+# no bootstrapping
+
+choice_models_nosplit <- data.frame(matrix(ncol = 7, nrow = 1))
+
+colnames(choice_models_nosplit) <- model_names
+
+#start fitting
+feel_fit(split = FALSE, num = nparticipants)
+choice_fit(split = FALSE, nparticipants)
+choice_models_nosplit[1, ] <- choice_BIC(nparticipants)
 
 ```
 
 Original:
 
 ![Choice Models](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/choice_model.jpg)
+
+```{r}
+ggplot(choice_models_nosplit %>% 
+               gather("model", "BIC", 1:7) %>%
+               separate(model, sep="_", into= c("first", "model")) %>%
+               filter(!is.na(BIC)), aes(x = model, y = BIC)) + 
+        stat_summary(fun.y = "identity", geom="bar")
+```
+
 
 ###Exploratory analyses
 

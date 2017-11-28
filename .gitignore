@@ -30,7 +30,7 @@ packrat/src*/
 *.DS_Store
 
 # MTurk credentials and data
-auth.json.txt
+auth.json
 my-own-auth.json
 mturk/
 
@@ -39,4 +39,6 @@ mturk/
 !README.md
 !writeup/project_proposal.md
 !original_paper/Charpentier2016.pdf
+!original_paper/suppl-material.pdf
 !expt/img/*.jpg
+!expt/img/*png
