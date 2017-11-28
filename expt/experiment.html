@@ -527,9 +527,9 @@
     	jsPsych.init({
     		timeline: timeline,
     		on_finish: function(data){
-                //opener.turk.submit(jsPsych.data.getData());
+                opener.turk.submit(jsPsych.data.get().json());
                 //saveData("pilot_data.csv", jsPsych.data.get().csv();
-                jsPsych.data.get().localSave('json', 'pilot.json');
+                //jsPsych.data.get().localSave('json', 'pilot.json');
     		}
     	});
 
