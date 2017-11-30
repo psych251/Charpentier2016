@@ -27,12 +27,12 @@
     	/* param */
 
         // has to be multiple of 2
-    	var feel_trialNum = 2;
+    	var feel_trialNum = 48;
 
         // needs to be multiple of 3
         // otherwise it will round
         
-        var gamble_trialNum = 2;
+        var gamble_trialNum = 288;
 
     	/* HELPER VARIABLES AND FUNCTIONS */
 
@@ -103,7 +103,7 @@
     		if (value > 0){
     			var info = {
     				type: "html-keyboard-response",
-    				stimulus: "<h2>If you choose the <span style=\"color:green\">GOOD</span> picture, you will win $" + String(value) + "</h2>",
+    				stimulus: "<h2>If you choose the <span style=\"color:green\">GOOD</span> picture, you will  <span style=\"color:green\">win $" + String(value) + "</span></h2>",
     				choices: jsPsych.NO_KEYS,
     				trial_duration: 2000
     			}
@@ -111,7 +111,7 @@
     		} else{
     			var info = {
     				type: "html-keyboard-response",
-    				stimulus: "<h2>If you choose the <span style=\"color:red\">BAD</span> picture, you will lose $" + String(-value) + "</h2>",
+    				stimulus: "<h2>If you choose the <span style=\"color:red\">BAD</span> picture, you will <span style=\"color:red\">lose $" + String(-value) + "</span></h2>",
     				choices: jsPsych.NO_KEYS,
     				trial_duration: 2000
     			}
@@ -215,8 +215,6 @@
                 ctx.fillText("WIN", 200, 195)
                 ctx.fillText("$" + String(value), 200, 235);
               }
-              dataURL = canvas.toDataURL();
-              return "<img src=\"" + dataURL + "\">";
 
             } else if(arguments.length == 2){
                 var counterbalence = Math.round(Math.random());
@@ -252,10 +250,9 @@
                   ctx.fillText("WIN", 290, 195);
                   ctx.fillText("$" + String(right), 290, 235);
                 }
-
-              dataURL = canvas.toDataURL();
-              return "<img src=\"" + dataURL + "\">";
             }
+            dataURL = canvas.toDataURL("image/png")
+            return "<img src=\"" + dataURL + "\">";
           }
         /* END OF HELPER VARS AND FUNCTIONS */
 
@@ -527,8 +524,7 @@
     	jsPsych.init({
     		timeline: timeline,
     		on_finish: function(data){
-                opener.turk.submit(jsPsych.data.get().json());
-                //saveData("pilot_data.csv", jsPsych.data.get().csv();
+                opener.turk.submit(jsPsych.data.get().ignore(['stimulus']).json());
                 //jsPsych.data.get().localSave('json', 'pilot.json');
     		}
     	});
