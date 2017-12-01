@@ -180,21 +180,24 @@ library(jsonlite)
 ####Import data
 
 #init params of experiment
-nparticipants <- 2
+data_path = '../data'
+data_files = dir(data_path)
+
+nparticipants <- length(data_files)
 n.iter <- 10
 
-#read pilot1 data
-d <- fromJSON('../expt/pilot_data/pilot2.json')
+d <- fromJSON(paste0('../data/', data_files[1])) ## read the first data file to create the master dataframe
 d <- fromJSON(paste0(d$answers))
 d$id <- 1
 
-#read pilot 2 data
-temp_d <- fromJSON('../expt/pilot_data/pilot2.json')
-temp_d <- fromJSON(paste0(temp_d$answers)) ## paste0 makes answers (a list) to one string
-temp_d$id <- 2
+#read in the rest of the data in data_files
+for(i in 2:length(data_files)){
+        temp_d <- fromJSON(paste0('../data/', data_files[i]))
+        temp_d <- fromJSON(paste0(temp_d$answers))
+        temp_d$id <- i
+        d <- rbind(d, temp_d)
+}
 
-#combine
-d <- rbind(d, temp_d)
 
 #filter irrelevant data
 d <- d %>% filter(!is.na(feel_trial_type) | !is.na(gamble_trial_type))
