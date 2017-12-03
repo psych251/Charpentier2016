@@ -23,6 +23,8 @@ Charpentier (2016) investigates this question by utilizing computational models.
 
 ###Power Analysis
 
+Charpentier does not specify a power analysis for their main statistical test. Since their key analysis relys on model fitting, it is unclear on how to get enough participants to tell that one model performs better than another. However, the authors do specify a power analysis in a supplmentary analysis. I will use this test as a proxy for my power analysis, even though it may be an overestimation or underestimation of number of participants.
+
 As part of their supplementary analysis, Charpentier used a paired t-test to compare the weights of losing coeficients to weights of wining coeficients. This test was to see of one was significantly larger than the other in the choice models.
 
 Original paper reports:
@@ -126,6 +128,8 @@ Short Experiment Version: [https://web.stanford.edu/~mlko53/expt/experiment_shor
 
 Only exclusion criteria is removing participant data who show no variation in response.
 
+WILL ADD MORE HERE
+
 **Feeling Function Models**
 
 Model subjective feelings from three different baselines: difference from the midpoint of the rating scale, difference from the rating reported on the previous trial (for experienced feelings only), and difference from the corresponding zero outcome.
@@ -147,7 +151,7 @@ Key analysis tests whether feeling based choice models (Choice Model 1, 2) predi
 
 I'm using a smaller sample size in order to fit the contraints of the class budget. Furthermore, I'm using less trials in each feeling block. Instead of 2 blocks of 48 trials for each expected and experienced blocks, I'm only using 1 block of 48 trials. Gambling trial length remains the same.
 
-The authors used Maximum Likehood Estimation algorithm from MATLAB to fit their models. I will use Nonlinear Solver (nls() function) in R using Gauss-Newton algorithm.
+The authors used Maximum Likehood Estimation algorithm from MATLAB to fit their models. I will use Nonlinear Solver (nls() function) in R using Gauss-Newton algorithm. The keydifference between MLE in Matlab and nls() in R is that nls() estimates parameters based on least squares, and MLE estimates parameters on maximum log likehood. This difference yields different parameter estimations and different BIC calculations, but does not detract from model comparison.
 
 ### Methods Addendum (Post Data Collection)
 
@@ -184,7 +188,7 @@ data_path = '../data'
 data_files = dir(data_path)
 
 nparticipants <- length(data_files)
-n.iter <- 10
+n.iter <- 100
 
 d <- fromJSON(paste0('../data/', data_files[1])) ## read the first data file to create the master dataframe
 d <- fromJSON(paste0(d$answers))
@@ -274,7 +278,12 @@ feel_BIC <- function(num){
         for(i in 1:num){
                 for(j in 1:20){
                         model <- paste0(paste0(paste0(model_names[j], "[["), i), "]]") ## make feel_expect_mod j .fit[[ i ]]
-                        vector[j] <- vector[j] + BIC(eval(parse(text = model)))
+                        model <- eval(parse(text = model))
+                        if(is.na(model)){
+                                vector[j] <- NA #### If there was an error when fitting, assign NA to indicate that the model was not good
+                        } else{
+                                vector[j] <- vector[j] + BIC(model)        
+                        }
                 }
         }
         return(vector)
@@ -290,7 +299,7 @@ transform_predict <- function(win, lose, sure, model){
 
 gamble_log_fit <- function(d, model){
         params <- transform_predict(d$win, d$lose, d$sure, model)
-        return(glm(d$gamble ~ params[[1]] + params[[2]] + params[[3]] + 0, family = binomial(link = "logit")))
+        return(nls(d$gamble ~ 1 / (1 + exp(1) ^ - (b1 * params[[1]] + b2 * params[[2]] + b3* params[[3]]))))
 }
 
 # calculate BIC total for choice models
@@ -305,7 +314,7 @@ choice_BIC <- function(num){
                         model <- paste0(paste0(paste0(model_names[j], "[["), i), "]]")
                         model <- eval(parse(text = model))
                         if(is.na(model)){
-                                vector[j] <- NA #### If there was an error when fitting, assign NA to indicate that the model was not good
+                                vector[j] <- NA 
                         } else{
                                 vector[j] <- vector[j] + BIC(model)       
                         }
@@ -384,11 +393,13 @@ feel_fit <- function(split = TRUE, num){
                                                    control = list(maxiter = 50000, minFactor=1/2000))))
                 
                 feel_expect_mod3.fit <- c(feel_expect_mod3.fit, 
-                                          list(nls(data = temp_feel_expect, mod3, start = c(b = .5, p = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
+                                          list(tryCatch(nls(data = temp_feel_expect, mod3, start = c(b = .5, p = .5),
+                                                   control = list(maxiter = 50000, minFactor=1/2000)),
+                                                   error = function(err) NA)))
                 feel_expect_mod4.fit <- c(feel_expect_mod4.fit, 
-                                          list(nls(data = temp_feel_expect, mod4, start = c(bgain = .5, bloss = .5, p = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
+                                          list(tryCatch(nls(data = temp_feel_expect, mod4, start = c(bgain = .5, bloss = .5, p = .5),
+                                                   control = list(maxiter = 50000, minFactor=1/2000)),
+                                                   error = function(err) NA)))
                 feel_expect_mod5.fit <- c(feel_expect_mod5.fit, 
                                           list(tryCatch(nls(data = temp_feel_expect, mod5, start = c(b = .5, pgain = .5, ploss = .5),
                                                    control = list(maxiter = 50000, minFactor=1/2000)),
@@ -418,11 +429,13 @@ feel_fit <- function(split = TRUE, num){
                                               list(nls(data = temp_feel_experience, mod2, start = c(bgain = 1, bloss = 1),
                                                        control = list(maxiter = 50000, minFactor=1/2000))))
                 feel_experience_mod3.fit <- c(feel_experience_mod3.fit, 
-                                              list(nls(data = temp_feel_experience, mod3, start = c(b = 1, p = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
+                                              list(tryCatch(nls(data = temp_feel_experience, mod3, start = c(b = 1, p = 1),
+                                                       control = list(maxiter = 50000, minFactor=1/2000)),
+                                                       error = function(err) NA)))
                 feel_experience_mod4.fit <- c(feel_experience_mod4.fit, 
-                                              list(nls(data = temp_feel_experience, mod4, start = c(bgain = .5, bloss = .5, p = .5),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
+                                              list(tryCatch(nls(data = temp_feel_experience, mod4, start = c(bgain = .5, bloss = .5, p = .5),
+                                                       control = list(maxiter = 50000, minFactor=1/2000)),
+                                                       error = function(err) NA)))
                 feel_experience_mod5.fit <- c(feel_experience_mod5.fit, 
                                               list(tryCatch(nls(data = temp_feel_experience, mod5, start = c(b = 1, pgain = 1, ploss = 1),
                                                        control = list(maxiter = 50000, minFactor=1/2000)),
@@ -521,7 +534,7 @@ choice_fit <- function(split = TRUE, num){
                 choice_mod2.fit <- c(choice_mod2.fit, list(gamble_log_fit(gamble_block, feel_experience_mod3.fit[[i]])))
                 choice_mod3.fit <- c(choice_mod3.fit, list(glm(data = temp_gamble_block, gamble ~ 0 + win + lose + sure, family = binomial)))
                 choice_mod4.fit <- c(choice_mod4.fit, list(glm(data = temp_gamble_block, gamble ~ 0 + log0(win) + log0(lose) + log0(sure), family = binomial)))
-                choice_mod5.fit <- c(choice_mod5.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * win + 0.5 * lamda * lose))), 
+                choice_mod5.fit <- c(choice_mod5.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * win + 0.5 * lamda * abs(lose)))), 
                                                                start = c(u = 1, lamda = 1),
                                                                control = list(maxiter = 50000, minFactor=1/2000)),
                                                                error = function(err) NA)))
@@ -619,38 +632,9 @@ ggplot(data = feel_data_sum,
 
 **Comparing Feeling Models**
 
-First we fit Feeling Models 1 - 10 for both expected and experienced feelings, and select the best model with the lowest sum across all participants BIC. Same fitting procedure is repeated with 100 iterations for split half boostrap analysis. 
+First we fit Feeling Models 1 - 10 for both expected and experienced feelings, and select the best model with the lowest sum across all participants BIC.
 
-```{r fitting_feeling_model}
-
-## init feeling functions dataframe - this will store summed up BIC for every model at every iteration
-feeling_models <- data.frame(matrix(ncol = 20, nrow = n.iter))
-
-## init names of the columns
-model_names <- character(20)
-for(i in 1:10){
-        model_names[i] <- paste0("feel_expect_mod", i)
-}
-        
-for(i in 11:20){
-        model_names[i] <- paste0("feel_experience_mod", i - 10)
-}
-
-colnames(feeling_models) <- model_names
-
-## compute 100 boostraps
-for(i in 1:n.iter){
-        feel_fit(split = TRUE, nparticipants)
-        feeling_models[i, ] <- feel_BIC(nparticipants) # stores summed BIC ofevery model of each iteration 
-}
-
-## compute the lowest BIC for each bootstrap iteration
-feeling_expect_models <- feeling_models[, 1:10]
-feeling_experience_models <- feeling_models[, 11:20]
-
-feeling_expect_models <- table(colnames(feeling_expect_models)[apply(feeling_expect_models,1,which.min)])
-feeling_experience_models <- table(colnames(feeling_experience_models)[apply(feeling_experience_models,1,which.min)])
-
+```{r warning = FALSE}
 ## no boostrapping
 feeling_models_nosplit <- data.frame(matrix(ncol = 20, nrow = 1))
 
@@ -678,13 +662,19 @@ Original:
 ![Expected Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/expected_feeling_model.jpg)
 
 ```{r plot_expected_feeling_models}
-# plots average summed up BIC expected feeling models
-ggplot(feeling_models %>% 
+feeling_expect <- feeling_models_nosplit %>% 
                select(1:10) %>% 
                gather("model", "BIC", 1:10) %>%
-               separate(model, sep="_", into= c("first", "second", "model")), aes(x = model, y = BIC)) + 
+               separate(model, sep="_", into= c("first", "second", "model"))
+
+feeling_expect$model <- factor(feeling_expect$model, levels = c("mod10", "mod9", "mod8", "mod7", "mod6",
+                                                                "mod5", "mod4", "mod3", "mod2", "mod1"))
+
+# plots average summed up BIC expected feeling models
+ggplot(feeling_expect, aes(x = model, y = BIC)) + 
         stat_summary(fun.y = "identity", geom="bar") +
-        coord_cartesian(ylim = c(0, 200))
+        ggthemes::theme_few() +
+        coord_flip()
 ```
 
 ----------
@@ -696,19 +686,27 @@ Original:
 ![Experienced Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/experienced_feeling_model.jpg)
 
 ```{r fitted_experienced_feeling_model}
-# plots average summed up BIC experienced feeling models
-ggplot(feeling_models %>% 
+
+feeling_experience <- feeling_models_nosplit %>% 
                select(11:20) %>% 
                gather("model", "BIC", 1:10) %>%
-               separate(model, sep="_", into= c("first", "second", "model")), aes(x = model, y = BIC)) + 
-        stat_summary(fun.y = "identity", geom="bar") 
+               separate(model, sep="_", into= c("first", "second", "model"))
+
+feeling_experience$model <- factor(feeling_experience$model, levels = c("mod10", "mod9", "mod8", "mod7", "mod6",
+                                                                "mod5", "mod4", "mod3", "mod2", "mod1"))
+
+# plots average summed up BIC experienced feeling models
+ggplot(feeling_experience, aes(x = model, y = BIC)) + 
+        stat_summary(fun.y = "identity", geom="bar") +
+        ggthemes::theme_few() +
+        coord_flip()
 ```
 
 **Choice Models**
 
 Next, we fit Choice Model 1-7, and select the best model with the lowest sum across all participants BIC. Same fitting procedure is repeated with 100 iterations for split half boostrap analysis. 
 
-Key analysis: BIC of Model 1,2 > BIC of Model 3-7
+*Key analysis: BIC of Model 1,2 > BIC of Model 3-7*
 
 ```{r warning=FALSE}
 
@@ -768,8 +766,8 @@ FILL IN LATER
 
 ### Summary of Replication Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
+I'm not sure why there is a negative BIC for model 5, I will investigate that later. The BIC values are a function of participant number, so if you compare my graphs to the original, you will notice that the original has much larger BIC's. This difference may also be reflective of the different trial numbers that I use in the feeling block.
