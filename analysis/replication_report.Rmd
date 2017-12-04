@@ -180,6 +180,9 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(jsonlite)
+library(bbmle)
+
+source("utils.R") ## Has all helper functions used for fitting models
 
 ####Import data
 
@@ -249,365 +252,6 @@ gamble_block$gamble <- gamble
 
 ```
 
-**Helper Functions**
-
-These functions help me calculate BIC with split-half bootstrap analysis.
-
-```{r helper_fucntions}
-
-# splits dataframe in half randomly
-split_half <- function(d){
-        val_length <- round(nrow(d) / 2)
-        val_indices <- sample(seq_len(nrow(d)), size = val_length)
-        return(d[val_indices, ])
-}
-
-# calculate BIC total for feel models
-feel_BIC <- function(num){
-        vector <- double(20)
-        model_names <- character(20)
-
-        for(i in 1:10){
-                model_names[i] <- paste0(paste0("feel_expect_mod", i), ".fit")
-        }
-        
-        for(i in 11:20){
-                model_names[i] <- paste0(paste0("feel_experience_mod", i - 10), ".fit")
-        }
-        
-        for(i in 1:num){
-                for(j in 1:20){
-                        model <- paste0(paste0(paste0(model_names[j], "[["), i), "]]") ## make feel_expect_mod j .fit[[ i ]]
-                        model <- eval(parse(text = model))
-                        if(is.na(model)){
-                                vector[j] <- NA #### If there was an error when fitting, assign NA to indicate that the model was not good
-                        } else{
-                                vector[j] <- vector[j] + BIC(model)        
-                        }
-                }
-        }
-        return(vector)
-}
-
-#value transformation function; returns a list or predicted values; win == 1, lost == 2, sure == 3
-transform_predict <- function(win, lose, sure, model){
-        twin <- predict(model, data.frame(value = win))
-        tlose <- predict(model, data.frame(value = lose))
-        tsure <- predict(model, data.frame(value = sure))
-        return(list(twin, tlose, tsure))
-}
-
-gamble_log_fit <- function(d, model){
-        params <- transform_predict(d$win, d$lose, d$sure, model)
-        return(nls(d$gamble ~ 1 / (1 + exp(1) ^ - (b1 * params[[1]] + b2 * params[[2]] + b3* params[[3]]))))
-}
-
-# calculate BIC total for choice models
-choice_BIC <- function(num){
-        vector <- double(7)
-        for(i in 1:10){
-                model_names[i] <- paste0(paste0("choice_mod", i), ".fit")
-        }
-        
-        for(i in 1:num){
-                for(j in 1:7){
-                        model <- paste0(paste0(paste0(model_names[j], "[["), i), "]]")
-                        model <- eval(parse(text = model))
-                        if(is.na(model)){
-                                vector[j] <- NA 
-                        } else{
-                                vector[j] <- vector[j] + BIC(model)       
-                        }
-                }
-        }
-        return(vector)
-}
-```
-
-**Feeling Helper Functions**
-
-These functions are the model formulas of the feeling functions.
-
-```{r feeling_helper_functions}
-
-# formulas from the paper
-mod1 <- response ~ b * value
-mod2 <- response ~ ifelse(value > 0, bgain * value, bloss * value)
-mod3 <- response ~ ifelse(value > 0, b * abs(value) ^ p , -b * abs(value) ^ p)
-mod4 <- response ~ ifelse(value > 0, bgain * abs(value) ^ p, -bloss * abs(value) ^ p)
-mod5 <- response ~ ifelse(value > 0, b * abs(value) ^ pgain, -b * abs(value) ^ ploss)                            ## 5 has problems converging               
-mod6 <- response ~ ifelse(value > 0, bgain * abs(value) ^ pgain, -bloss * abs(value) ^ ploss)                    ## 6 has problems converging
-mod7 <- response ~ ifelse(value > 0, b * value + e, b * value - e)                                      
-mod8 <- response ~ ifelse(value > 0, bgain * value + e, bloss * value - e)                              
-mod9 <- response ~ ifelse(value > 0, b * value + egain, b * value - eloss)
-mod10 <- response ~ ifelse(value > 0, bgain * value + egain, bloss * value - eloss)
-
-## Here begins the worst code that I've ever written in my entire life
-
-# function that fits all the feeling model
-feel_fit <- function(split = TRUE, num){
-        
-        ## init empty lists of models
-        feel_expect_mod1.fit <- list()
-        feel_expect_mod2.fit <- list()
-        feel_expect_mod3.fit <- list()
-        feel_expect_mod4.fit <- list()
-        feel_expect_mod5.fit <- list()
-        feel_expect_mod6.fit <- list()
-        feel_expect_mod7.fit <- list()
-        feel_expect_mod8.fit <- list()
-        feel_expect_mod9.fit <- list()
-        feel_expect_mod10.fit <- list()
-        
-        feel_experience_mod1.fit <- list()
-        feel_experience_mod2.fit <- list()
-        feel_experience_mod3.fit <- list()
-        feel_experience_mod4.fit <- list()
-        feel_experience_mod5.fit <- list()
-        feel_experience_mod6.fit <- list()
-        feel_experience_mod7.fit <- list()
-        feel_experience_mod8.fit <- list()
-        feel_experience_mod9.fit <- list()
-        feel_experience_mod10.fit <- list()
-
-        
-        ## fit each model to each participant
-        for(i in 1:num){
-                
-                temp_feel_expect <- feel_expect %>% filter(id == i)
-                
-                temp_feel_experience <- feel_experience %>% filter(id == i)
-                
-                #only half split when bootstrapping
-                if(split == TRUE){
-                        temp_feel_expect <- split_half(temp_feel_expect)
-                        temp_feel_experience <- split_half(temp_feel_experience)
-                }
-                
-                feel_expect_mod1.fit <- c(feel_expect_mod1.fit, 
-                                          list(nls(data = temp_feel_expect, mod1, start = c(b = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
-                
-                feel_expect_mod2.fit <- c(feel_expect_mod2.fit, 
-                                          list(nls(data = temp_feel_expect, mod2, start = c(bgain = .5, bloss = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
-                
-                feel_expect_mod3.fit <- c(feel_expect_mod3.fit, 
-                                          list(tryCatch(nls(data = temp_feel_expect, mod3, start = c(b = .5, p = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000)),
-                                                   error = function(err) NA)))
-                feel_expect_mod4.fit <- c(feel_expect_mod4.fit, 
-                                          list(tryCatch(nls(data = temp_feel_expect, mod4, start = c(bgain = .5, bloss = .5, p = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000)),
-                                                   error = function(err) NA)))
-                feel_expect_mod5.fit <- c(feel_expect_mod5.fit, 
-                                          list(tryCatch(nls(data = temp_feel_expect, mod5, start = c(b = .5, pgain = .5, ploss = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000)),
-                                                   error = function(err) NA)))
-                feel_expect_mod6.fit <- c(feel_expect_mod6.fit, 
-                                          list(tryCatch(nls(data = temp_feel_expect, mod6, start = c(bgain = .5, bloss = .5, pgain = .5, ploss = .5),
-                                                   control = list(maxiter = 50000, minFactor=1/2000)),
-                                                   error = function(err) NA)))
-                feel_expect_mod7.fit <- c(feel_expect_mod7.fit, 
-                                          list(nls(data = temp_feel_expect, mod7, start = c(b = .5, e = .1),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_expect_mod8.fit <- c(feel_expect_mod8.fit, 
-                                          list(nls(data = temp_feel_expect, mod8, start = c(bgain = .5, bloss = .5, e = .1),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_expect_mod9.fit <- c(feel_expect_mod9.fit, 
-                                          list(nls(data = temp_feel_expect, mod9, start = c(b = 1, egain = .1, eloss = .1),
-                                                   control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_expect_mod10.fit <- c(feel_expect_mod10.fit, 
-                                           list(nls(data = temp_feel_expect, mod10, start = c(bgain = 1, bloss = 1, egain = .1, eloss = .1),
-                                                    control = list(maxiter = 50000, minFactor=1/2000))))
-              
-                
-                feel_experience_mod1.fit <- c(feel_experience_mod1.fit, 
-                                              list(nls(data = temp_feel_experience, mod1, start = c(b = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_experience_mod2.fit <- c(feel_experience_mod2.fit, 
-                                              list(nls(data = temp_feel_experience, mod2, start = c(bgain = 1, bloss = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_experience_mod3.fit <- c(feel_experience_mod3.fit, 
-                                              list(tryCatch(nls(data = temp_feel_experience, mod3, start = c(b = 1, p = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000)),
-                                                       error = function(err) NA)))
-                feel_experience_mod4.fit <- c(feel_experience_mod4.fit, 
-                                              list(tryCatch(nls(data = temp_feel_experience, mod4, start = c(bgain = .5, bloss = .5, p = .5),
-                                                       control = list(maxiter = 50000, minFactor=1/2000)),
-                                                       error = function(err) NA)))
-                feel_experience_mod5.fit <- c(feel_experience_mod5.fit, 
-                                              list(tryCatch(nls(data = temp_feel_experience, mod5, start = c(b = 1, pgain = 1, ploss = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000)),
-                                                       error = function(err) NA)))
-                feel_experience_mod6.fit <- c(feel_experience_mod6.fit, 
-                                              list(tryCatch(nls(data = temp_feel_experience, mod6, start = c(bgain = 1, bloss = 1, pgain = 1, ploss = 1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000)),
-                                                       error = function(err) NA)))
-                feel_experience_mod7.fit <- c(feel_experience_mod7.fit, 
-                                              list(nls(data = temp_feel_experience, mod7, start = c(b = 1, e = .1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_experience_mod8.fit <- c(feel_experience_mod8.fit, 
-                                              list(nls(data = temp_feel_experience, mod8, start = c(bgain = 1, bloss = 1, e = .1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_experience_mod9.fit <- c(feel_experience_mod9.fit, 
-                                              list(nls(data = temp_feel_experience, mod9, start = c(b = 1, egain = .1, eloss = .1),
-                                                       control = list(maxiter = 50000, minFactor=1/2000))))
-                feel_experience_mod10.fit <- c(feel_experience_mod10.fit, 
-                                               list(nls(data = temp_feel_experience, mod10, start = c(bgain = 1, bloss = 1, egain = .1, eloss = .1),
-                                                        control = list(maxiter = 50000, minFactor=1/2000))))
-        }
-        
-        #make these models a global variable
-        assign("feel_expect_mod1.fit", feel_expect_mod1.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod2.fit", feel_expect_mod2.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod3.fit", feel_expect_mod3.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod4.fit", feel_expect_mod4.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod5.fit", feel_expect_mod5.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod6.fit", feel_expect_mod6.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod7.fit", feel_expect_mod7.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod8.fit", feel_expect_mod8.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod9.fit", feel_expect_mod9.fit, envir = .GlobalEnv)
-        assign("feel_expect_mod10.fit", feel_expect_mod10.fit, envir = .GlobalEnv)
-        
-        assign("feel_experience_mod1.fit", feel_experience_mod1.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod2.fit", feel_experience_mod2.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod3.fit", feel_experience_mod3.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod4.fit", feel_experience_mod4.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod5.fit", feel_experience_mod5.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod6.fit", feel_experience_mod6.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod7.fit", feel_experience_mod7.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod8.fit", feel_experience_mod8.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod9.fit", feel_experience_mod9.fit, envir = .GlobalEnv)
-        assign("feel_experience_mod10.fit", feel_experience_mod10.fit, envir = .GlobalEnv)
-        
-
-        
-}
-
-# use nls to fit models
-# use BIC on fitted models to return BIC
-```
-
-**Choice Helper Functions**
-
-These functions are the model formulas of the gambling choice models.
-
-```{r choice_helper_functions}
-
-# log transformation function for choice model 4
-log0 <- function(x){
-        
-        if(length(x) == 1){
-        
-                if(x == 0){
-                        ans = 0
-                } else if(x < 0){
-                        ans = -log1p(-x)
-                } else{
-                        ans = log1p(x)
-                }
-                return(ans)
-        } else{
-                return(sapply(x, FUN = log0))
-        }
-}
-
-# function that fits all the choice functions
-choice_fit <- function(split = TRUE, num){
-        
-        choice_mod1.fit <- list()
-        choice_mod2.fit <- list()
-        choice_mod3.fit <- list()
-        choice_mod4.fit <- list()
-        choice_mod5.fit <- list()
-        choice_mod6.fit <- list()
-        choice_mod7.fit <- list()
-        
-        for(i in 1:num){
-                temp_gamble_block <- gamble_block %>% filter(id == i)
-                if(split == TRUE){
-                        temp_gamble_block <- split_half(temp_gamble_block)
-                }
-                
-                choice_mod1.fit <- c(choice_mod1.fit, list(gamble_log_fit(gamble_block, feel_expect_mod3.fit[[i]])))
-                choice_mod2.fit <- c(choice_mod2.fit, list(gamble_log_fit(gamble_block, feel_experience_mod3.fit[[i]])))
-                choice_mod3.fit <- c(choice_mod3.fit, list(glm(data = temp_gamble_block, gamble ~ 0 + win + lose + sure, family = binomial)))
-                choice_mod4.fit <- c(choice_mod4.fit, list(glm(data = temp_gamble_block, gamble ~ 0 + log0(win) + log0(lose) + log0(sure), family = binomial)))
-                choice_mod5.fit <- c(choice_mod5.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * win + 0.5 * lamda * abs(lose)))), 
-                                                               start = c(u = 1, lamda = 1),
-                                                               control = list(maxiter = 50000, minFactor=1/2000)),
-                                                               error = function(err) NA)))
-                choice_mod6.fit <- c(choice_mod6.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * (abs(win) ^ gamma) + 0.5 * (abs(lose) ^ gamma)))),
-                                                               start = c(u = 1, gamma = 1),
-                                                               control = list(maxiter = 50000, minFactor=1/2000)),
-                                                               error = function(err) NA)))
-                choice_mod7.fit <- c(choice_mod7.fit, list(tryCatch(nls(data = temp_gamble_block, gamble ~ 1 / (1 + exp(1) ^ -(u * (0.5 * (abs(win) ^ gamma) + 0.5 * lamda * (abs(lose) ^ gamma)))),
-                                                               start = c(u = 1, gamma = 1, lamda = 1),
-                                                               control = list(maxiter = 50000, minFactor=1/2000)),
-                                                               error = function(err) NA)))
-                
-        }
-        
-        #make these models a global variable
-        assign("choice_mod1.fit", choice_mod1.fit, envir = .GlobalEnv)
-        assign("choice_mod2.fit", choice_mod2.fit, envir = .GlobalEnv)
-        assign("choice_mod3.fit", choice_mod3.fit, envir = .GlobalEnv)
-        assign("choice_mod4.fit", choice_mod4.fit, envir = .GlobalEnv)
-        assign("choice_mod5.fit", choice_mod5.fit, envir = .GlobalEnv)
-        assign("choice_mod6.fit", choice_mod6.fit, envir = .GlobalEnv)
-        assign("choice_mod7.fit", choice_mod7.fit, envir = .GlobalEnv)
-}
-
-```
-
-**Analysis Helper Function**
-
-```{r}
-## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
-##   data: a data frame.
-##   measurevar: the name of a column that contains the variable to be summariezed
-##   groupvars: a vector containing names of columns that contain grouping variables
-##   na.rm: a boolean that indicates whether to ignore NA's
-##   conf.interval: the percent range of the confidence interval (default is 95%)
-summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
-                      conf.interval=.95, .drop=TRUE) {
-    library(plyr)
-
-    # New version of length which can handle NA's: if na.rm==T, don't count them
-    length2 <- function (x, na.rm=FALSE) {
-        if (na.rm) sum(!is.na(x))
-        else       length(x)
-    }
-
-    # This does the summary. For each group's data frame, return a vector with
-    # N, mean, and sd
-    datac <- ddply(data, groupvars, .drop=.drop,
-      .fun = function(xx, col) {
-        c(N    = length2(xx[[col]], na.rm=na.rm),
-          mean = mean   (xx[[col]], na.rm=na.rm),
-          sd   = sd     (xx[[col]], na.rm=na.rm)
-        )
-      },
-      measurevar
-    )
-
-    # Rename the "mean" column    
-    datac <- rename(datac, c("mean" = measurevar))
-
-    datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
-
-    # Confidence interval multiplier for standard error
-    # Calculate t-statistic for confidence interval: 
-    # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
-    ciMult <- qt(conf.interval/2 + .5, datac$N-1)
-    datac$ci <- datac$se * ciMult
-
-    return(datac)
-}
-```
-
-
 ### Confirmatory analysis
 
 **Data Visualization**
@@ -636,7 +280,7 @@ First we fit Feeling Models 1 - 10 for both expected and experienced feelings, a
 
 ```{r warning = FALSE}
 ## no boostrapping
-feeling_models_nosplit <- data.frame(matrix(ncol = 20, nrow = 1))
+feeling_models <- data.frame(matrix(ncol = 20, nrow = 1))
 
 ## init names of the columns
 model_names <- character(20)
@@ -648,10 +292,10 @@ for(i in 11:20){
         model_names[i] <- paste0("feel_experience_mod", i - 10)
 }
 
-colnames(feeling_models_nosplit) <- model_names
+colnames(feeling_models) <- model_names
 
-feel_fit(split = FALSE, nparticipants)
-feeling_models_nosplit[1, ] <- feel_BIC(nparticipants)
+feel_fit(nparticipants)
+feeling_models[1, ] <- feel_BIC(nparticipants)
 
 ```
 
@@ -662,7 +306,7 @@ Original:
 ![Expected Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/expected_feeling_model.jpg)
 
 ```{r plot_expected_feeling_models}
-feeling_expect <- feeling_models_nosplit %>% 
+feeling_expect <- feeling_models %>% 
                select(1:10) %>% 
                gather("model", "BIC", 1:10) %>%
                separate(model, sep="_", into= c("first", "second", "model"))
@@ -672,9 +316,11 @@ feeling_expect$model <- factor(feeling_expect$model, levels = c("mod10", "mod9",
 
 # plots average summed up BIC expected feeling models
 ggplot(feeling_expect, aes(x = model, y = BIC)) + 
-        stat_summary(fun.y = "identity", geom="bar") +
+        stat_summary(fun.y = "identity", geom="bar", fill="orange", width = .5) +
+        ylab("BIC(Summed Across Participants)\nBetter Fit (Lower BIC)") +
+        ggtitle("Expected-Feelings Models") +
         ggthemes::theme_few() +
-        coord_flip()
+        coord_flip() 
 ```
 
 ----------
@@ -687,7 +333,7 @@ Original:
 
 ```{r fitted_experienced_feeling_model}
 
-feeling_experience <- feeling_models_nosplit %>% 
+feeling_experience <- feeling_models %>% 
                select(11:20) %>% 
                gather("model", "BIC", 1:10) %>%
                separate(model, sep="_", into= c("first", "second", "model"))
@@ -696,8 +342,10 @@ feeling_experience$model <- factor(feeling_experience$model, levels = c("mod10",
                                                                 "mod5", "mod4", "mod3", "mod2", "mod1"))
 
 # plots average summed up BIC experienced feeling models
-ggplot(feeling_experience, aes(x = model, y = BIC)) + 
-        stat_summary(fun.y = "identity", geom="bar") +
+ggplot(feeling_expect, aes(x = model, y = BIC)) + 
+        stat_summary(fun.y = "identity", geom="bar", fill="darkblue", width = .5) +
+        ylab("BIC(Summed Across Participants)\nBetter Fit (Lower BIC)") +
+        ggtitle("Experienced-Feelings Models") +
         ggthemes::theme_few() +
         coord_flip()
 ```
@@ -706,7 +354,7 @@ ggplot(feeling_experience, aes(x = model, y = BIC)) +
 
 Next, we fit Choice Model 1-7, and select the best model with the lowest sum across all participants BIC. Same fitting procedure is repeated with 100 iterations for split half boostrap analysis. 
 
-*Key analysis: BIC of Model 1,2 > BIC of Model 3-7*
+*Key analysis: BIC of Model 1,2 < BIC of Model 3-7*
 
 ```{r warning=FALSE}
 
@@ -722,7 +370,7 @@ for(i in 1:7){
 colnames(choice_models) <- model_names
 
 #start fitting
-feel_fit(split = FALSE, num = nparticipants) # fit feel model with all the data
+feel_fit(nparticipants) # fit feel model with all the data
 
 for(i in 1:n.iter){
         
@@ -739,7 +387,7 @@ choice_models_nosplit <- data.frame(matrix(ncol = 7, nrow = 1))
 colnames(choice_models_nosplit) <- model_names
 
 #start fitting
-feel_fit(split = FALSE, num = nparticipants)
+feel_fit(num = nparticipants)
 choice_fit(split = FALSE, nparticipants)
 choice_models_nosplit[1, ] <- choice_BIC(nparticipants)
 
@@ -750,11 +398,23 @@ Original:
 ![Choice Models](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/choice_model.jpg)
 
 ```{r}
-ggplot(choice_models_nosplit %>% 
+choice_models_nosplit <- choice_models_nosplit %>% 
                gather("model", "BIC", 1:7) %>%
                separate(model, sep="_", into= c("first", "model")) %>%
-               filter(!is.na(BIC)), aes(x = model, y = BIC)) + 
-        stat_summary(fun.y = "identity", geom="bar")
+               filter(!is.na(BIC))
+
+choice_models_nosplit$model <- factor(choice_models_nosplit$model, levels = c("mod7", "mod6",
+                                                                "mod5", "mod4", "mod3", "mod2", "mod1"))
+
+ggplot() + 
+        stat_summary(data=choice_models_nosplit[1,], aes(x = model, y = BIC), fill = "orange", fun.y = "identity", geom = "bar", width=.5) +
+        stat_summary(data=choice_models_nosplit[2,], aes(x = model, y = BIC), fill = "darkblue", fun.y = "identity", geom="bar", width=.5) +
+        stat_summary(data=choice_models_nosplit[3:7,], aes(x = model, y = BIC), fun.y = "identity", geom="bar", width=.5) +
+        scale_x_discrete(limits = levels(choice_models_nosplit$model)) +
+        ylab("BIC(Summed Across Participants)\nBetter Fit (Lower BIC)") +
+        ggtitle("Experienced-Feelings Models") +
+        ggthemes::theme_few() +
+        coord_flip()
 ```
 
 
