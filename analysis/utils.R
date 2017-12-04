@@ -292,7 +292,9 @@ choice_mod7 <- function(u, lamda, gamma, sigma){
 }
 
 # function that fits all the choice functions
-choice_fit <- function(split = TRUE, num){
+# split option splits the data into half and fits based on that
+# mle2 does not have a predict function, so I'm going to have to do this with accuracy
+choice_fit <- function(split = TRUE, num, accuracy = FALSE){
         
         choice_mod1.fit <- list()
         choice_mod2.fit <- list()
@@ -301,6 +303,12 @@ choice_fit <- function(split = TRUE, num){
         choice_mod5.fit <- list()
         choice_mod6.fit <- list()
         choice_mod7.fit <- list()
+        
+
+        d <- data.frame(matrix(ncol = 7, nrow = num))
+        colnames(d) <- c("choice_mod1", "choice_mod2", "choice_mod3", "choice_mod4",
+                        "choice_mod5", "choice_mod6", "choice_mod7")
+        
         
         for(i in 1:num){
                 temp_gamble_block <- gamble_block %>% filter(id == i)
@@ -333,6 +341,83 @@ choice_fit <- function(split = TRUE, num){
                                                                 data = temp_gamble_block)))
                 
                 
+                if(accuracy == TRUE){
+                        test <- gamble_block %>% filter(id == i)
+                        test <- test[-ind, ]
+                        
+                        #mod1
+                        test_trans <- transform_predict(test, feel_expect_mod3.fit[[i]])
+                        coef <- coef(choice_mod1.fit[[i]])
+                        b1 <- coef[['b1']]
+                        b2 <- coef[['b2']]
+                        b3 <- coef[['b3']]
+                        pred <- 1 / (1 + exp(-(b1 * test_trans$win + b2 * test_trans$lose + b3 * test_trans$sure)))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 1] <- acc
+                        
+                        #mod2
+                        test_trans <- transform_predict(test, feel_experience_mod3.fit[[i]])
+                        coef <- coef(choice_mod2.fit[[i]])
+                        b1 <- coef[['b1']]
+                        b2 <- coef[['b2']]
+                        b3 <- coef[['b3']]
+                        pred <- 1 / (1 + exp(-(b1 * test_trans$win + b2 * test_trans$lose + b3 * test_trans$sure)))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 2] <- acc
+                        
+                        #mod3
+                        test_trans <- test
+                        coef <- coef(choice_mod3.fit[[i]])
+                        b1 <- coef[['b1']]
+                        b2 <- coef[['b2']]
+                        b3 <- coef[['b3']]
+                        pred <- 1 / (1 + exp(-(b1 * test_trans$win + b2 * test_trans$lose + b3 * test_trans$sure)))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 3] <- acc
+                        
+                        #mod4
+                        test_trans <- transform_log(test)
+                        coef <- coef(choice_mod4.fit[[i]])
+                        b1 <- coef[['b1']]
+                        b2 <- coef[['b2']]
+                        b3 <- coef[['b3']]
+                        pred <- 1 / (1 + exp(-(b1 * test_trans$win + b2 * test_trans$lose + b3 * test_trans$sure)))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 4] <- acc
+                        
+                        #mod5
+                        test_trans <- test
+                        coef <- coef(choice_mod5.fit[[i]])
+                        u <- coef[['u']]
+                        lamda <- coef[['lamda']]
+                        pred <- 1 / (1 + exp(-(u * (0.5 * test_trans$win + 0.5 * lamda * abs(test_trans$lose)))))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 5] <- acc
+                        
+                        #mod6
+                        test_trans <- test
+                        coef <- coef(choice_mod6.fit[[i]])
+                        u <- coef[['u']]
+                        gamma <- coef[['gamma']]
+                        pred <- 1 / (1 + exp(-(u * (0.5 * (abs(test_trans$win) ^ gamma) - 0.5 * (abs(test_trans$lose) ^ gamma)))))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 6] <- acc
+                        
+                        #mod7
+                        test_trans <- test
+                        coef <- coef(choice_mod7.fit[[i]])
+                        u <- coef[['u']]
+                        lamda <- coef[['lamda']]
+                        gamma <- coef[['gamma']]
+                        pred <- 1 / (1 + exp(-(u * (0.5 * (abs(test_trans$win) ^ gamma) - 0.5 * lamda * (abs(test_trans$lose) ^ gamma)))))
+                        acc <- 1 - mean(abs(test_trans$gamble - round(pred)))
+                        d[i, 7] <- acc
+                }
+                
+        }
+        
+        if(accuracy == TRUE){
+                return(as.data.frame(d))
         }
         
         #make these models a global variable
@@ -386,3 +471,6 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
         
         return(datac)
 }
+
+sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(sum(!is.na((x))))}
+ci <- function(x) {sem(x) * 1.96} # reasonable approximation 

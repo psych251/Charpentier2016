@@ -412,7 +412,7 @@ ggplot() +
         stat_summary(data=choice_models_nosplit[3:7,], aes(x = model, y = BIC), fun.y = "identity", geom="bar", width=.5) +
         scale_x_discrete(limits = levels(choice_models_nosplit$model)) +
         ylab("BIC(Summed Across Participants)\nBetter Fit (Lower BIC)") +
-        ggtitle("Experienced-Feelings Models") +
+        ggtitle("Choice Models") +
         ggthemes::theme_few() +
         coord_flip()
 ```
@@ -420,7 +420,30 @@ ggplot() +
 
 ###Exploratory analyses
 
-FILL IN LATER 
+```{r warning=F}
+accuracy <- choice_fit(split = T, num = nparticipants, accuracy = T)
+for(i in 1:(n.iter - 1)){
+        accuracy <- rbind(accuracy, choice_fit(split = T, num = nparticipants, accuracy = T))
+}
+
+accuracy <- accuracy %>%
+        gather("model", "accuracy", 1:7) %>%
+        separate(model, sep = "_", into=c("first", "model")) %>%
+        mutate(model = factor(model)) %>%
+        group_by(model) %>%
+        summarise(mean.accuracy = mean(accuracy), ci = ci(accuracy))
+
+ggplot() +  
+        stat_summary(data=accuracy[1,], aes(x = model, y = mean.accuracy), fill = "orange", fun.y="identity", geom="bar", width=.5) +
+        stat_summary(data=accuracy[2,], aes(x = model, y = mean.accuracy), fill = "darkblue", fun.y="identity", geom="bar", width=.5) +
+        stat_summary(data=accuracy[3:7,], aes(x = model, y = mean.accuracy), fun.y="identity", geom="bar", width=.5) +
+        ylim(c(0, 1)) +
+        ylab("Average Prediction Accuracy") +
+        xlab("Model") +
+        ggthemes::theme_few()
+        
+```
+
 
 ## Discussion
 
@@ -430,4 +453,3 @@ FILL IN LATER
 
 ### Commentary
 
-I'm not sure why there is a negative BIC for model 5, I will investigate that later. The BIC values are a function of participant number, so if you compare my graphs to the original, you will notice that the original has much larger BIC's. This difference may also be reflective of the different trial numbers that I use in the feeling block.
