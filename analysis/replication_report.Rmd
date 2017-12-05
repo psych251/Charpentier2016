@@ -113,7 +113,7 @@ TO FILL OUT AFTER DATA COLLECTION
 
 Data from 
 	
-```{r warning=FALSE}
+```{r warning=F, message = F}
 ###Data Preparation
 
 ####Load Relevant Libraries and Functions
@@ -201,7 +201,7 @@ gamble_block$gamble <- gamble
 
 The below graph shows the average reported expected and experienced feeling with each objective value. Standard error bars are shown.
 
-```{r}
+```{r message=F}
 feel_expect_sum <- summarySE(feel_expect, measurevar = "response", groupvars = c("value"))
 feel_expect_sum$type <- "Expected Feelings"
 feel_experience_sum <- summarySE(feel_experience, measurevar = "response", groupvars = c("value"))
@@ -221,7 +221,7 @@ ggplot(data = feel_data_sum,
 
 First we fit Feeling Models 1 - 10 for both expected and experienced feelings, and select the best model with the lowest sum across all participants BIC.
 
-```{r warning = FALSE}
+```{r warning = FALSE, message=F}
 ## no boostrapping
 feeling_models <- data.frame(matrix(ncol = 20, nrow = 1))
 
@@ -299,7 +299,7 @@ Next, we fit Choice Model 1-7, and select the best model with the lowest sum acr
 
 *Key analysis: BIC of Model 1,2 < BIC of Model 3-7*
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=F}
 
 #init choice model array
 choice_models <- data.frame(matrix(ncol = 7, nrow = n.iter))
@@ -363,7 +363,7 @@ ggplot() +
 
 ###Exploratory analyses
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=F}
 detach("package:plyr", unload=TRUE) 
 
 accuracy <- choice_fit(split = T, num = nparticipants, accuracy = T)
