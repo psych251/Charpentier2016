@@ -72,19 +72,19 @@ mod2 <- function(bgain, bloss, sigma){
         -sum(dnorm(response, mean=Y.pred, sd=sigma, log=T))
 }
 mod3 <- function(b, p, sigma){
-        Y.pred = ifelse(value > 0, b * abs(value) ^ p , -b * abs(value) ^ p)
+        Y.pred = ifelse(value == 0, 0, ifelse(value > 0, b * abs(value) ^ p , -b * abs(value) ^ p))
         -sum(dnorm(response, mean=Y.pred, sd=sigma, log=T))
 }
-mod4 <- function(bgain, bloss, p, sigma){
-        Y.pred = ifelse(value > 0, bgain * abs(value) ^ p, -bloss * abs(value) ^ p)
+        mod4 <- function(bgain, bloss, p, sigma){
+        Y.pred = ifelse(value == 0, 0, ifelse(value > 0, bgain * abs(value) ^ p, -bloss * abs(value) ^ p))
         -sum(dnorm(response, mean=Y.pred, sd=sigma, log=T))
 }
 mod5 <- function(b, pgain, ploss, sigma){
-        Y.pred = ifelse(value > 0, b * abs(value) ^ pgain, -b * abs(value) ^ ploss)
+        Y.pred = ifelse(value == 0, 0, ifelse(value > 0, b * abs(value) ^ pgain, -b * abs(value) ^ ploss))
         -sum(dnorm(response, mean=Y.pred, sd=sigma, log=T))
 }
 mod6 <- function(bgain, bloss, pgain, ploss, sigma){
-        Y.pred = ifelse(value > 0, bgain * abs(value) ^ pgain, -bloss * abs(value) ^ ploss) 
+        Y.pred = ifelse(value == 0, 0, ifelse(value > 0, bgain * abs(value) ^ pgain, -bloss * abs(value) ^ ploss)) 
         -sum(dnorm(response, mean=Y.pred, sd=sigma, log=T))
 }
 mod7 <- function(b, e, sigma){
@@ -231,9 +231,9 @@ transform_predict <- function(d, model){
         coef <- coef(model)
         b <- coef[['b']]
         p <- coef[['p']]
-        twin <- ifelse(d$win > 0, b * abs(d$win) ^ p , -b * abs(d$win) ^ p)
-        tlose <- ifelse(d$lose > 0, b * abs(d$lose) ^ p , -b * abs(d$lose) ^ p)
-        tsure <- ifelse(d$sure > 0, b * abs(d$sure) ^ p , -b * abs(d$sure) ^ p)
+        twin <- ifelse(d$win == 0, 0, ifelse(d$win > 0, b * abs(d$win) ^ p , -b * abs(d$win) ^ p))
+        tlose <- ifelse(d$lose == 0, 0, ifelse(d$lose > 0, b * abs(d$lose) ^ p , -b * abs(d$lose) ^ p))
+        tsure <- ifelse(d$sure == 0, 0, ifelse(d$sure > 0, b * abs(d$sure) ^ p , -b * abs(d$sure) ^ p))
         d$win <- twin
         d$lose <- tlose
         d$sure <- tsure
@@ -270,25 +270,25 @@ transform_log <- function(d){
 #standard logistic regression
 choice_mod1 <- function(b1, b2, b3, sigma){
         Y.pred = 1 / (1 + exp(-(b1 * win + b2 * lose + b3 * sure)))
-        -sum(log((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble)))
+        -sum(log10((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble)))
 }
 
 #loss aversion model
 choice_mod5 <- function(u, lamda, sigma){
         Y.pred = 1 / (1 + exp(-(u * (0.5 * win + 0.5 * lamda * abs(lose)))))
-        suppressWarnings(-sum(log((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble))))
+        suppressWarnings(-sum(log10((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble))))
 }
 
 #risk aversion model
 choice_mod6 <- function(u, gamma, sigma){
-        Y.pred = 1 / (1 + exp(-(u * (0.5 * (abs(win) ^ gamma) - 0.5 * (abs(lose) ^ gamma)))))
-        -sum(log((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble)))
+        Y.pred = 1 / (1 + exp(-(u * (0.5 * (ifelse(win == 0, 0, abs(win) ^ gamma)) - 0.5 * (ifelse(lose == 0, 0, abs(lose) ^ gamma))))))
+        -sum(log10((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble)))
 }
 
 #risk and loss aversion model
 choice_mod7 <- function(u, lamda, gamma, sigma){
-        Y.pred = 1 / (1 + exp(-(u * (0.5 * (abs(win) ^ gamma) - 0.5 * lamda * (abs(lose) ^ gamma)))))
-        -sum(log((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble)))
+        Y.pred = 1 / (1 + exp(-(u * (0.5 * (ifelse(win == 0, 0, abs(win) ^ gamma)) - 0.5 * lamda * (ifelse(lose == 0, 0, abs(lose) ^ gamma))))))
+        -sum(log10((Y.pred ^ gamble) * (1 - Y.pred) ^ (1 - gamble)))
 }
 
 # function that fits all the choice functions
@@ -316,8 +316,8 @@ choice_fit <- function(split = TRUE, num, accuracy = FALSE){
                         ind <- split_half(temp_gamble_block)
                         temp_gamble_block <- temp_gamble_block[ind, ]
                 }
-                
-                sigma = 1
+                message(i)
+                sigma = sd(temp_gamble_block$gamble)
                 
                 choice_mod1.fit <- c(choice_mod1.fit, list(mle2(choice_mod1, start=list(b1=1, b2=1, b3=1, sigma=sigma), 
                                                                 data = transform_predict(temp_gamble_block, feel_expect_mod3.fit[[i]]))))
@@ -325,7 +325,7 @@ choice_fit <- function(split = TRUE, num, accuracy = FALSE){
                 choice_mod2.fit <- c(choice_mod2.fit, list(mle2(choice_mod1, start=list(b1=1, b2=1, b3=1, sigma=sigma), 
                                                                 data = transform_predict(temp_gamble_block, feel_experience_mod3.fit[[i]]))))
                 
-                choice_mod3.fit <- c(choice_mod3.fit, list(mle2(choice_mod1, start=list(b1=1, b2=1, b3=1, sigma=sigma), 
+                choice_mod3.fit <- c(choice_mod3.fit, list(mle2(choice_mod1, start=list(b1=2, b2=2, b3=2, sigma=sigma), 
                                                                 data = temp_gamble_block)))
                 
                 choice_mod4.fit <- c(choice_mod4.fit, list(mle2(choice_mod1, start=list(b1=1, b2=1, b3=1, sigma=sigma), 
