@@ -34,6 +34,8 @@ auth.json
 my-own-auth.json
 mturk/
 
+data/*.json
+
 
 # Specific file keep
 !README.md
