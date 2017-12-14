@@ -316,7 +316,6 @@ choice_fit <- function(split = TRUE, num, accuracy = FALSE){
                         ind <- split_half(temp_gamble_block)
                         temp_gamble_block <- temp_gamble_block[ind, ]
                 }
-                message(i)
                 sigma = sd(temp_gamble_block$gamble)
                 
                 choice_mod1.fit <- c(choice_mod1.fit, list(mle2(choice_mod1, start=list(b1=1, b2=1, b3=1, sigma=sigma), 

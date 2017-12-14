@@ -15,7 +15,9 @@ output:
 
 Prospect theory (Kahneman & Tversky, 1979; Tversky & Kahneman, 1986, 1992) stipulates that people make choices based on subjective values of the choices, and not from the objective values of the choice. In other words, in a gambling task, when presented with a sure option \$5 or a risky 50-50 option of either gaining \$10 or gaining \$0, prospect theory expects people to make their decisions based on how much they value \$5 dollars, relative to how much they value \$10. But is the subjective value in prospect theory a proxy of feeling?
 
-Charpentier (2016) investigates this question by utilizing computational models. The authors are interested in whether a model based on feeling will be able to predict choices in a monetary gambling task better than a model based on objective values. The authors asked participants to rate how negatively or positively they would feel or expect to feel if they won or lost an object value. Those self-reported feelings were used to create a feeling function which relates objective values to a subjective feelings (expected or experienced). On a separate task, the authors asked participants to choose between a sure option and a risky 50-50 option in a monetary gambling task. Feeling based choice model used the constructed feeling function to predict feelings associated with each objective value, and then used those predicted feelings to predict choice. Value based choice model only used objective value to predict choice. 
+Charpentier (2016) investigates this question by utilizing computational models. The authors are interested in whether a model based on feeling will be able to predict choices in a monetary gambling task better than a model based on objective values. The authors asked participants to rate how negatively or positively they would feel or expect to feel if they won or lost an object value. Those self-reported feelings were used to create a feeling function which relates objective values to a subjective feelings (expected or experienced). On a separate task, the authors asked participants to choose between a sure option and a risky 50-50 option in a monetary gambling task. Feeling based choice models used the constructed feeling function to predict feelings associated with each objective monetary value, and then used those predicted feelings to predict choice. Value based choice model only used objective value to predict choice. 
+
+Charpentier finds that feeling based choice models do predict gambling choices better than value based choice models. Thus the author concludes that the results demonstrates how feelings integrate into decision making processes. Furthermore, the author states that these affect-based choices reveal how feelings of each different choice uniquely contributes to decision making.
 
 ##Methods
 
@@ -25,7 +27,7 @@ Charpentier does not specify a power analysis for their main statistical test. S
 
 As part of their supplementary analysis, Charpentier used a paired t-test to compare the weights of losing coefficients to weights of winning coefficients. This test was to see of one was significantly larger than the other in the choice models.
 
-Original paper reports:
+From the Original paper:
 
 > "We determined that a sample size of 59 participants would achieve 85% power to detect an
 effect size of 0.401 with an alpha of .05."
@@ -34,13 +36,13 @@ Using the effect size found in the original paper (d = 0.392) with an alpha of .
 
 ###Planned Sample
 
-For the sake of feasibility in collecting data. 30 participants with a shorter version of their experiment was planned. Although this significantly reduces the sample of the experiment, their main analysis is not the comparison of the weights of losing and winning to each other, but rather, the predictive power of the models itself, which don't depend on sample size as much as t-tests do. So, although power was not achieved for the test for weight comparison, it is still possible to evaluate how good fitted models are with only 30 participants.
+For the sake of feasibility in collecting data. 30 participants with a shorter version of their experiment was planned. Although this significantly reduces the sample of the experiment, their main analysis is not the comparison of the weights of losing and winning to each other, but rather, the predictive power of the models itself, which don't depend on sample size as much as t-tests do. So, although power was not achieved for the t-test for weight comparison, it is still possible to evaluate how good fitted models are with only 30 participants. Supplementary material from the original paper includes pilot runs of the study, which are reported to yield similar model comparison results with around 30 participants.
 
-There is no specific recruitment constraints in demographics since the original paper did not specify any.
+No specific recruitment constraints in demographics specified in the original paper.
 
 ###Materials
 
-Basic geometric shapes were used for each stimulus in a trial. Each trial had a different geometric shape to ensure that associations of monetary outcomes and the shapes did not carry throughout trials.
+Basic geometric shapes were used for each stimulus in a trial. Each trial had a different geometric shape to ensure that associations of monetary outcomes and the shapes do not carry throughout within a block.
 
 ![Shapes](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/shapes.jpg)
 
@@ -52,80 +54,95 @@ Participants completed two tasks, a feeling task and a gambling task. The order 
 
 **Feeling Task**
 
-In the feelings task, participants completed four blocks of 40 to 48 trials each, in which they reported either expected (Fig. 1a) or experienced (Fig. 1b) feelings associated with a range of wins and losses (between £0.2 and £12) or with no change in monetary amount (£0). At the beginning of each trial, participants were told how much was at stake and whether it was a win trial (e.g., "If you choose the GOOD picture, you will: WIN £10") or a loss trial (e.g., "If you choose the BAD picture, you will: LOSE £10"). On each trial, their task was to make a simple arbitrary choice between two different geometrical shapes. Participants were told that
+> In the feelings task, participants completed four blocks of 40 to 48 trials each, in which they reported either expected (Fig. 1a) or experienced (Fig. 1b) feelings associated with a range of wins and losses (between £0.2 and £12) or with no change in monetary amount (£0). At the beginning of each trial, participants were told how much was at stake and whether it was a win trial (e.g., "If you choose the GOOD picture, you will: WIN £10") or a loss trial (e.g., "If you choose the BAD picture, you will: LOSE £10"). On each trial, their task was to make a simple arbitrary choice between two different geometrical shapes. Participants were told that
 one stimulus was randomly associated with a gain or loss (between £0.2 and £12) and the other stimulus with no gain and no loss (£0). Each stimulus was presented only once across the entire task so there was no way for participants to learn which stimulus was associated with a better outcome. The probability of sampling each amount was controlled to ensure that each gain and each loss from the range was sampled twice in each block: In one instance, the outcome was the amount at stake (win/loss), and in the other, the outcome was £0 (no win/no loss).
 
-In two of the four blocks (counterbalanced order), participants reported their expected feelings prior to choosing between the two stimuli (Fig. 1a), and in the other two blocks, they reported their experienced feelings after choosing between the two stimuli (Fig. 1b). Participants reported their expected feelings by answering one of four questions asking how they would feel if they "win," "lose," "don't win," or "don't lose" (the order of win/lose and don't-win/don't-lose questions was counterbalanced across trials). In experienced-feelings blocks, participants answered the question "How do you feel now?" All feelings were rated using a subjective rating scale ranging from extremely unhappy to extremely happy. Expected and experienced feelings were collected in different blocks to ensure participants did not simply remember and repeat the same rating. The choice between the two geometrical shapes was arbitrary and implemented simply in order to have participants actively involved with the outcomes.
+> In two of the four blocks (counterbalanced order), participants reported their expected feelings prior to choosing between the two stimuli (Fig. 1a), and in the other two blocks, they reported their experienced feelings after choosing between the two stimuli (Fig. 1b). Participants reported their expected feelings by answering one of four questions asking how they would feel if they "win," "lose," "don't win," or "don't lose" (the order of win/lose and don't-win/don't-lose questions was counterbalanced across trials). In experienced-feelings blocks, participants answered the question "How do you feel now?" All feelings were rated using a subjective rating scale ranging from extremely unhappy to extremely happy. Expected and experienced feelings were collected in different blocks to ensure participants did not simply remember and repeat the same rating. The choice between the two geometrical shapes was arbitrary and implemented simply in order to have participants actively involved with the outcomes.
 
 **Gambling Task**
 
-Participants also completed a probabilistic-choice task (Fig. 1c) in which they made 288 to 322 choices between a risky 50-50 gamble and a sure option. Importantly, all the amounts used in the gambling task were the same as those used in the feelings task (between £0.2 and £12), so feelings associated with these outcomes could be combined to predict gambling choice. There were three gamble types: mixed (participants had to choose between a gamble with a 50% chance of a gain and 50% chance of a loss, or a sure option of £0), gain only (participants had to choose between a gamble with a 50% chance of a high gain and a 50% chance of £0, or a sure, smaller gain), and loss only (participants had to choose between a gamble with 50% chance of a high loss and 50% chance of £0, or a sure, smaller loss). According to prospect theory, these three types of choices are essential to estimate loss aversion, risk preference for gains, and risk preference for losses, respectively.
+> Participants also completed a probabilistic-choice task (Fig. 1c) in which they made 288 to 322 choices between a risky 50-50 gamble and a sure option. Importantly, all the amounts used in the gambling task were the same as those used in the feelings task (between £0.2 and £12), so feelings associated with these outcomes could be combined to predict gambling choice. There were three gamble types: mixed (participants had to choose between a gamble with a 50% chance of a gain and 50% chance of a loss, or a sure option of £0), gain only (participants had to choose between a gamble with a 50% chance of a high gain and a 50% chance of £0, or a sure, smaller gain), and loss only (participants had to choose between a gamble with 50% chance of a high loss and 50% chance of £0, or a sure, smaller loss). According to prospect theory, these three types of choices are essential to estimate loss aversion, risk preference for gains, and risk preference for losses, respectively.
 
 **Link to Replication Experiment**
 
-Short Experiment Version: [https://web.stanford.edu/~mlko53/expt/experiment_short.html]
+Experimental replication links can be found below. 
+
+Short Experiment Version (~5 minutes): [https://web.stanford.edu/~mlko53/expt/experiment_short.html]
+
+Complete Experiment Version (~30 minutes): [https://web.stanford.edu/~mlko53/expt/experiment.html]
 
 ###Analysis Plan
 
 Only exclusion criteria is removing participant data who show no variation in response.
 
-Participant responses from the feeling task will be used to map objective values to subjective feeling by fitting outlined *feeling model*. Participant choices from the gambling task will be predicted by affect based choices that rely on the best feeling model, or value based choices that rely on either the monetary values presented during the gambling task, or simple transformations of the monetary values. **Key analysis** tests whether feeling based choice models (Choice Model 1, 2) predict better than value based choice models (Choice Model 3 - 7).
+Participant responses from the feeling task will be used to map objective values to subjective feeling by fitting outlined *feeling models*. Best feeling models for both expected and experienced models will be selected. Afterwards, participants choices from the gambling task will be predicted by either an affect-based choice model, that relies on the best feeling models, or value-based choice model, that rely on monetary values, or transformed monetary values presented during the task. The **key analysis** tests whether feeling based choice models (Choice Model 1, 2) predict better than value based choice models (Choice Model 3 - 7). All model parameters were estimated using Maximum Likelihood Estimation.
 
 **Feeling Function Models**
 
-Model subjective feelings from three different baselines: difference from the midpoint of the rating scale, difference from the rating reported on the previous trial (for experienced feelings only), and difference from the corresponding zero outcome.
+Subjective feelings can be measured in three ways. One is the the difference between the ratings and the midpoint of the rating scale (0). Another is the difference between the ratings and the average rating of receiving \$0. The last one is computing the difference between the rating of the current trial and the rating of the last trial. Charpentier 2016 shows only the difference between the ratings and the average rating of receiving \$0, since the effects were most prominent using that measure of subjective feelings.
 
-In order to capture the relationship between subjective feeling and objective values, 10 different models were fit for each feeling block, expected and experienced. These models were either linear, or s-shaped, with slight variations such as piecewise fitting (where the parameters of positive and negative values are estimated separately) or intercept terms (expecting that the feeling associated with +0 is not 0). See Charpentier2016, p.4 for model formula. Each model was fit to every participants. Best model in each feeling block was determined by selecting the model with the least summed BIC across all participants. 
+In order to capture the relationship between subjective feeling and objective values, 10 different models were fit for each feeling block, expected and experienced. These models were either linear, or s-shaped, with slight variations such as piecewise fitting (where the parameters of positive and negative values are estimated separately) or intercept terms (expecting that the feeling associated with +0 is not 0). See Charpentier2016, p.4 for specific model formula. Each model was fit to every participants. Best model in each feeling block was determined by selecting the model with the least summed BIC across all participants. 
 
 **Gambling Choice Models**
 
-Each choice model used logistic regression on three predictors, a win value, loss value and sure value, to predict gambling choice (coded "1" for selecting the risky 50-50, or "0" for selecting the sure option). 7 different choice models were fitted for every participant. Choice model 1 and 2 are feeling models using the best fitting feeling function from the expected feeling block and experienced feeling block respectively to transform objective values to subjective values. Choice model 3 - 7 are value based models using either raw objective values or a transformation of the raw objective value such as logarithm (See Charpentier2016, p.5 and Supplementary Material, p.3 for model formula). Best model was determined by using BIC as model selection criterion and 100 split half analysis. 
+Each choice model used logistic regression on three predictors, a win value, loss value and sure value, to predict gambling choice (coded "1" for selecting the risky 50-50, or "0" for selecting the sure option). 7 different choice models were fitted for every participant. Choice model 1 and 2 are feeling models using the best fitting feeling function from the expected feeling block and experienced feeling block respectively to transform objective values to subjective values. Choice model 3 - 7 are value based models using either raw objective values or a transformation of the raw objective value such as logarithm (See Charpentier2016, p.5 and Supplementary Material, p.3 for model formula). Best model was determined by using BIC as model selection criterion. Furthermore, 100 split half analysis was used to see if the best model finding is robust. In each split half analysis, only a random half subset of the data was be used for parameter estimation of the models. BIC was calculated accordingly to each split half analysis, and repeated 100 times. If the same best model was found consistently in each split half analysis, then we can conclude that the best model is selected because of its predictive power, and not because of other factors such as chance or overfitting.
 
 ###Differences from Original Study
 
+*Sample Difference*
+
 One key difference is that the original study did not use an online sample. The original study recruits participants from students in a university who complete the study in an inlab visit. This replication recruits participants from Amazon Mechanical Turk, and have participants complete the experiment on an online browser. 
-
-For simplicity sake of constructing the experimental paradigm on the web, this replication does not counterbalance the order of the feeling task and the gambling task. Furthermore, the order of the expected feeling block and the experienced feeling block within the feeling task is not counterbalanced. JUSTIFY
-
-The author's do not explicitly state the use of practice trials, however in order to keep the replication experimental paradigm short for the online sample, practice trials were not included. Results of the replication should not be affected significantly since all analysis only look at choice, and not measures that could be affected significantly by lack of practice trials such as reaction time.
-
 In order to fit the constraints of the class budget, a smaller sample size was used. Instead of the planned 53 in the power analysis, only 30 participants were recruited. 
 
-In order to keep the replication experimental paradigm to around 30 minutes, a shortened version of the experimental paradigm was administered. Instead of 2 blocks of 48 trials for each expected and experienced blocks, participants completed only 1 block of 48 trials for each. Gambling trial length remains the same. Reducing feeling trials may create poorer fits of the feeling models. However, BIC scores can still be extracted and utilized for model comparison. 
+*Material Difference*
 
-Given the constraint of the class budget, replication experiment did not provide any monetary incentive based on performance on the gambling task. The original paper does not specify this component as part of payment, but may be a potential source of difference.
+Original paper uses 0.2 - 12 pounds. This replication uses \$0.2 - \$12. Reason for using dollars instead of pounds was because participant sample was from the U.S. and not the U.K. I did not convert the original paper's monetary range appropriately with the current pound-dollar current exchange because I wanted to see whether the author's findings were generalizable to a different monetary scale.
+
+*Procedural Difference*
+
+* For simplicity sake of constructing the experimental paradigm on the web, this replication does not counterbalance the order of the feeling task and the gambling task. Furthermore, the order of the expected feeling block and the experienced feeling block within the feeling task is not counterbalanced. Supplementary material of the original paper finds no difference in results when presenting the tasks in different orders. Thus, any difference in results is expected not to have arisen from task counterbalancing.
+
+* The author's do not explicitly state the use of practice trials, however in order to keep the replication experimental paradigm short for the online sample, practice trials were not included. Results of the replication should not be affected significantly since all analysis only look at choice, and not measures that could be affected significantly by lack of practice trials such as reaction time.
+
+* In order to keep the replication experimental paradigm to around 30 minutes, a shortened version of the experimental paradigm was administered. Instead of 2 blocks of 48 trials for each expected and experienced blocks, participants completed only 1 block of 48 trials for each. Gambling trial length remains the same. Reducing feeling trials may create poorer fits of the feeling models. However, BIC scores can still be extracted and utilized for model comparison. 
+
+* Given the constraint of the class budget, replication experiment did not provide any monetary incentive based on performance on the gambling task. The original paper does not specify this component as part of payment, but may be a potential source of difference.
+
+*Analysis Difference*
+
+Charpentier reports using three different measures of subjective feelings. The one reported in the published paper used the difference between the ratings and the average rating of receiving \$0. I will use the difference between the ratings and the midpoint of the rating scale (0). Results should not differ since Charpentier reports no differences. Furthermore, preliminary piloting of the replication reveals that average rating of receiving \$0 is not significantly different from 0, again suggesting that this change would not shift results. 
 
 ### Methods Addendum (Post Data Collection)
 
 Split half, cross validated accuracy will be graphed for each choice function. In other words, training and estimation of the model parameters will use a random subset of one half of the data, while accuracy scores are extracted from testing on the other half of the data. Accuracy will not be used as the basis for model comparison, since accuracy scores do not control for the number of parameters fitted to the data, but provides an intuitive gauge of the predictive power of the model, relative to chance level (50%). 
 
 #### Actual Sample
-TO FILL OUT AFTER DATA COLLECTION
+30 U.S. mTurkers. No participants were excluded for lack of variation in responses.
 
 #### Differences from pre-data collection methods plan
-TO FILL OUT AFTER DATA COLLECTION
+None
+
 
 
 ##Results
 
 
 ### Data preparation
-
-Data from 
 	
 ```{r warning=F, message = F}
 ###Data Preparation
 
 ####Load Relevant Libraries and Functions
-set.seed(456) # so that cross val is the same for reproducibility
+set.seed(2017) # so that cross val is the same for reproducibility
 library(scales)
 library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(jsonlite)
 library(bbmle)
+library(knitr)
 
-source("utils.R") ## Has all helper functions used for fitting models
+source("utils.R") ## Has all helper functions used for fitting models and calculating BIC/accuracy
 
 ####Import data
 
@@ -134,7 +151,7 @@ data_path = '../data'
 data_files = dir(data_path)
 
 nparticipants <- length(data_files)
-n.iter <- 100
+n.iter <- 5
 
 d <- fromJSON(paste0('../data/', data_files[1])) ## read the first data file to create the master dataframe
 d <- fromJSON(paste0(d$answers))
@@ -151,17 +168,10 @@ for(i in 2:length(data_files)){
 
 #filter irrelevant data
 d <- d %>% filter(!is.na(feel_trial_type) | !is.na(gamble_trial_type))
+```
 
-
-#### Prepare data for analysis - create columns etc.
-
-# transform 1-9 likert subjective response to -4 - 4 so that neutral is 0
-d$response <- as.integer(d$response)
-d$response <- d$response - 5
-
-
-#### Data exclusion / filtering
-
+Split the data into task blocks. Fit feeling models for `feel_expect` and `feel_experience`. Test choice models with `gamble_block`.
+```{r}
 # split the data into the blocks so that later analysis is easier
 feel_expect <- d %>% 
         filter(feel_trial_type != "now" & feel_trial_type != "") %>%
@@ -174,6 +184,16 @@ feel_experience <- d %>%
 gamble_block <- d %>% 
         filter(!is.na(gamble_trial_type)) %>%
         select(gamble_trial_type, win, lose, sure, key_press, gamble_side, id)
+```
+
+Transform the data into suitable forms.
+```{r}
+# transform 1-9 likert subjective response to -4 - 4 so that neutral is 0
+feel_expect$response <- as.integer(feel_expect$response)
+feel_expect$response <- feel_expect$response - 5
+
+feel_experience$response <- as.integer(feel_experience$response)
+feel_experience$response <- feel_experience$response - 5
 
 #preprocess data so that there is a binary variable column named gamble
 gamble = logical(0)
@@ -192,7 +212,6 @@ for(i in 1:length(gamble_block$gamble_side)){
 }
 
 gamble_block$gamble <- gamble
-
 ```
 
 ### Confirmatory analysis
@@ -238,7 +257,9 @@ ggplot() +
 
 **Comparing Feeling Models**
 
-First we fit Feeling Models 1 - 10 for both expected and experienced feelings, and select the best model with the lowest sum across all participants BIC.
+There are two feelings that can be modeled, expected feelings and experienced feelings.
+
+First we fit Feeling Models 1 - 10 for expected feelings, and select the best model with the lowest sum across all participants BIC.
 
 ```{r warning = FALSE, message=F}
 ## no boostrapping
@@ -261,11 +282,6 @@ feeling_models[1, ] <- feel_BIC(nparticipants)
 
 ```
 
-Expected Feeling Model
-
-Original:
-
-![Expected Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/expected_feeling_model.jpg)
 
 ```{r plot_expected_feeling_models}
 feeling_expect <- feeling_models %>% 
@@ -285,13 +301,16 @@ ggplot(feeling_expect, aes(x = model, y = BIC)) +
         coord_flip(ylim = c(10500, 12500))
 ```
 
-----------
+Compare this with the original's Expected Feeling Models:
 
-Experienced Feeling Model
+![Expected Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/expected_feeling_model.jpg)
 
-Original:
+The original finds that Model 3 (S-shaped model) is the best model for expected feelings. This is indicated by the lower total BIC. The replication finds the same best model for expected feelings.
 
-![Experienced Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/experienced_feeling_model.jpg)
+--------------------------
+
+
+The same analysis plan is repeated for experienced feelings. Feeling Models 1 - 10 is fit for experienced feelings, using lowest sum across all participants BIC for model selection.
 
 ```{r fitted_experienced_feeling_model}
 
@@ -312,12 +331,21 @@ ggplot(feeling_expect, aes(x =model, y = BIC)) +
         coord_flip(ylim=c(10500, 12500))
 ```
 
+Compare this with the original's Experienced Feeling Models.
+
+![Experienced Feeling Model](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/experienced_feeling_model.jpg)
+
+
+Again, the original finds that Model 3 (S-shaped model) is the best model for expected feelings. The replication finds the same best model for experienced feelings.
+
+
 **Choice Models**
 
 Next, we fit Choice Model 1-7, and select the best model with the lowest sum across all participants BIC. Same fitting procedure is repeated with 100 iterations for split half boostrap analysis. 
 
 *Key analysis: BIC of Model 1,2 < BIC of Model 3-7*
 
+Results of best models in 100 iterations are stored in the table `choice_models_table`. Results for overall choice model BIC's without split half analysis is stored in `choice_models_nosplit`.
 ```{r warning=FALSE, message=F}
 
 #init choice model array
@@ -331,9 +359,6 @@ for(i in 1:7){
 
 colnames(choice_models) <- model_names
 
-#start fitting
-feel_fit(nparticipants) # fit feel model with all the data
-
 for(i in 1:n.iter){
         
         choice_fit(split = TRUE, nparticipants) # fit choice models split half
@@ -341,7 +366,7 @@ for(i in 1:n.iter){
         message(i)
 }
 
-choice_models_table <- table(colnames(choice_models)[apply(choice_models,1,which.min)])
+choice_models_table <- colSums(t(apply(choice_models, 1, FUN = function(x) {x == min(x)})))
 
 # no bootstrapping
 
@@ -350,16 +375,12 @@ choice_models_nosplit <- data.frame(matrix(ncol = 7, nrow = 1))
 colnames(choice_models_nosplit) <- model_names
 
 #start fitting
-feel_fit(num = nparticipants)
 choice_fit(split = FALSE, nparticipants)
 choice_models_nosplit[1, ] <- choice_BIC(nparticipants)
 
 ```
 
-Original:
-
-![Choice Models](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/choice_model.jpg)
-
+Graph BIC's of all choice model without split half analysis.
 ```{r}
 choice_models_nosplit <- choice_models_nosplit %>% 
                gather("model", "BIC", 1:7) %>%
@@ -381,9 +402,23 @@ ggplot() +
         coord_flip()
 ```
 
+Compare this with the original's Choice models.
 
+![Choice Models](/Users/Michael/Documents/Psych_251/Charpentier2016/analysis/img/choice_model.jpg)
+
+
+The original shows that both expected feelings and experienced feeling choice models had lower summed BIC than the other value based models (Model 3 - 7). The replication confirms this finding. 
+
+Furthermore, closer inspection of the cross validation iterations reveals that this finding is to a high degree. The original paper reports that this finding was replicated in 99 / 100 iterations. This replication finds that this finding was replicated in 100 / 100 iterations.
+
+```{r} 
+kable(choice_models_table)
+```
 ###Exploratory analyses
 
+The original paper uses summed BIC to compare models. BIC values however do not give an intuitive sense of the predictive value of these models. Here, I am interested in the accuracy of these choice models. More specifically, I will do a similar split half analysis process, reporting accuracy, not BIC values. Model paraemters will be fitted to a random half of the data, and then accuracy scores will be extracted from the other half of the data. This will be repeated 100 times to yield a stable measure of accuracy. 
+
+Note: accuracy is not a good model comparison. A model having a higher accuracy score does not mean it's a better model. Factors like overfitting or number of parameters included in the model need to be accounted for.
 ```{r warning=FALSE, message=F}
 detach("package:plyr", unload=TRUE) 
 
@@ -411,15 +446,19 @@ ggplot() +
         ggthemes::theme_few() +
         geom_abline(slope=0, intercept=.5, col="red", lty=2, size=1.2) +
         scale_y_continuous(labels=percent)
-        
 ```
 
+It is interesting to find that almost all of the models perform at about 90% accuracy. Model 6 is notably lower, but performs significantly above chance. Model 6's compromised performance could be attributed to convergence errors during fitting Model 6.
 
 ## Discussion
 
 ### Summary of Replication Attempt
 
-
+This results show a successful replication of Charpentier 2016. Even though the replication participant numbers (30) were significantly less than the original paper (56), all major findings were replicated. Both expected and experienced feelings had the same S-shaped model (Model 3) as the best feeling function. More importantly, for the key analysis, affect-based models (Model 1 and 2) had lower total BIC's and thus better predictions of choice than value-based models (Model 3-7). The key analysis is robust and repeatable over 100 / 100 cross validations, which is similar to the the original author's report (99 / 100).
 
 ### Commentary
+
+*Note about current analysis:* Model 6 in the choice model often had failed convergence. This could either be reflective of the model itself, or the algorithm used to fit the model. Follow-up exploratory analysis could investigate the cause of the failure to converge. However, such examination is probably not needed, since Model 6 was still a worse model relative to the rest when all models were successful fitted without convergence errors.
+
+Even though the replication was successful, slight changes to the analysis plan could yield interesting insights not reported in the original paper. For one, the only measure of subjective value was the difference between the trial rating and the midline of the scale (0). Charpentier specified other measures of subjective values that could be worthwhile exploring (such as subjective values based on differences of current trial rating and previous trial rating). The mentioned change to the analysis plan could be interesting, since in this replication, it is assumed that affect values of one trial is independent from the next. It is possible that participants who felt negatively in one trial felt a similar level of negative the next trial, regardless of expected or experienced monetary outcomes. Other models that account for this temporal dependency could be interesting to explore.
 
