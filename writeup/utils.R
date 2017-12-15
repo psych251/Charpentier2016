@@ -295,7 +295,9 @@ choice_mod7 <- function(u, lamda, gamma, sigma){
 # split option splits the data into half and fits based on that
 # mle2 does not have a predict function, so I'm going to have to do this with accuracy
 choice_fit <- function(split = TRUE, num, accuracy = FALSE){
-        
+        success = FALSE
+        while(!success){
+        tryCatch({
         choice_mod1.fit <- list()
         choice_mod2.fit <- list()
         choice_mod3.fit <- list()
@@ -427,6 +429,10 @@ choice_fit <- function(split = TRUE, num, accuracy = FALSE){
         assign("choice_mod5.fit", choice_mod5.fit, envir = .GlobalEnv)
         assign("choice_mod6.fit", choice_mod6.fit, envir = .GlobalEnv)
         assign("choice_mod7.fit", choice_mod7.fit, envir = .GlobalEnv)
+        success = TRUE
+        }, error=function(err){message("Error during fitting... Trying again...")}
+        )
+        }
 }
 
 ## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
